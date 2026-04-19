@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+
+class Task extends Model
+{
+    use HasFactory, HasUlids;
+
+    protected $fillable = [
+        'project_id',
+        'status_id',
+        'created_by',
+        'title',
+        'description',
+        'priority',
+        'due_date',
+        'sort_order',
+        'is_archived',
+    ];
+
+    protected $casts = [
+        'due_date'    => 'date',
+        'is_archived' => 'boolean',
+        'sort_order'  => 'integer',
+    ];
+
+    // ─── Relationships ────────────────────────────────────────────────────────
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(Status::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function assignees(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'task_assignees');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class)->orderBy('created_at');
+    }
+
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    public function activityLog(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class)->latest('created_at');
+    }
+
+    // ─── Scopes ───────────────────────────────────────────────────────────────
+
+    /**
+     * Tasks that are past their due date and not in a closed status.
+     */
+    public function scopeOverdue(Builder $query): Builder
+    {
+        return $query->whereNotNull('due_date')
+            ->where('due_date', '<', now())
+            ->whereHas('status', fn (Builder $q) => $q->where('is_closed', false));
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_archived', false);
+    }
+
+    public function scopeForProject(Builder $query, string $projectId): Builder
+    {
+        return $query->where('project_id', $projectId);
+    }
+}
