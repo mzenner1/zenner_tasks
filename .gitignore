@@ -1,4 +1,3 @@
-/vendor/
 node_modules/
 npm-debug.log
 yarn-error.log
@@ -15,6 +14,15 @@ public/hot
 public_html/storage
 public_html/hot
 
+public/images/*/*
+public/videos/*/*
+/public/build
+*.map
+public/dist/*
+public/js/*
+public/mix-manifest.json
+
+storage/uploads/*
 storage/*.key
 .env
 Homestead.yaml
@@ -22,9 +30,21 @@ Homestead.json
 /.vagrant
 .phpunit.result.cache
 
-/public/build
-/storage/pail
-.env.backup
-.env.production
-.phpactor.json
-auth.json
+.DS_Store
+.AppleDouble
+*.sql
+
+.lock*
+.~lock*
+*Zone.Identifier
+
+var/*
+var
+
+storage/framework/sessions/*
+storage/framework/sessions
+
+.well-known
+
+# Ignore IDE specific files
+.php-cs-fixer.dist.php
