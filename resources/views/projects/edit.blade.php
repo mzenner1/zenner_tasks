@@ -1,4 +1,4 @@
-<x-app-layout title="Edit Project">
+<x-app-layout :title="'Edit: ' . $project->name">
 <div class="max-w-xl space-y-6">
     <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Edit Project</h1>

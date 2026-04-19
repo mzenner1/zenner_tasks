@@ -1,9 +1,11 @@
-<x-app-layout :title="$task->title">
+<x-app-layout :title="$task->task_number_label . ' – ' . $task->title">
 <div class="max-w-5xl space-y-6">
 
     {{-- Breadcrumb --}}
     <div class="flex items-center gap-2 text-sm text-gray-500">
         <a href="{{ route('projects.show', $project) }}" class="hover:text-indigo-600">{{ $project->name }}</a>
+        <span>/</span>
+        <span class="font-mono text-indigo-500 font-semibold">{{ $task->task_number_label }}</span>
         <span>/</span>
         <span class="text-gray-800 font-medium truncate">{{ $task->title }}</span>
     </div>
@@ -14,7 +16,10 @@
         <div class="flex-1 min-w-0 space-y-5">
 
             {{-- Title --}}
-            <h1 class="text-2xl font-bold text-gray-900 leading-snug">{{ $task->title }}</h1>
+            <div class="flex items-baseline gap-3">
+                <span class="text-xl font-mono font-semibold text-indigo-500 flex-shrink-0">{{ $task->task_number_label }}</span>
+                <h1 class="text-2xl font-bold text-gray-900 leading-snug">{{ $task->title }}</h1>
+            </div>
 
             {{-- Description --}}
             @if($descriptionHtml)
@@ -27,12 +32,38 @@
             @if($task->attachments->count())
             <div class="bg-white rounded-xl border border-gray-200 p-4">
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">Attachments</h3>
+                {{-- Image previews --}}
+                @php $images = $task->attachments->filter->isImage(); $files = $task->attachments->reject->isImage(); @endphp
+                @if($images->count())
+                <div class="flex flex-wrap gap-2 mb-3">
+                    @foreach($images as $attachment)
+                    <div class="relative group">
+                        <a href="{{ route('attachments.download', $attachment) }}" target="_blank">
+                            <img src="{{ route('attachments.download', $attachment) }}"
+                                 alt="{{ $attachment->filename }}"
+                                 class="h-24 w-24 object-cover rounded-lg border border-gray-200">
+                        </a>
+                        @can('delete', $attachment)
+                        <form method="POST" action="{{ route('attachments.destroy', $attachment) }}"
+                              class="absolute top-1 right-1 hidden group-hover:block">
+                            @csrf @method('DELETE')
+                            <button onclick="return confirm('Delete this attachment?')"
+                                    class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs leading-none">&times;</button>
+                        </form>
+                        @endcan
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+                {{-- Non-image files --}}
+                @if($files->count())
                 <div class="space-y-2">
-                    @foreach($task->attachments as $attachment)
+                    @foreach($files as $attachment)
                     <div class="flex items-center justify-between text-sm">
                         <div class="flex items-center gap-2 min-w-0">
                             <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                            <span class="truncate text-gray-700">{{ $attachment->filename }}</span>
+                            <a href="{{ route('attachments.download', $attachment) }}"
+                               class="truncate text-indigo-600 hover:underline">{{ $attachment->filename }}</a>
                             <span class="text-gray-400 text-xs flex-shrink-0">{{ $attachment->humanSize() }}</span>
                         </div>
                         @can('delete', $attachment)
@@ -45,19 +76,20 @@
                     </div>
                     @endforeach
                 </div>
+                @endif
             </div>
             @endif
 
-            {{-- Upload attachment --}}
+            {{-- Upload additional attachments --}}
             @can('create', App\Models\Attachment::class)
             <div class="bg-white rounded-xl border border-dashed border-gray-300 p-4">
                 <form method="POST" action="{{ route('attachments.store') }}" enctype="multipart/form-data"
-                      class="flex items-center gap-3">
+                      class="flex items-center gap-3 flex-wrap">
                     @csrf
                     <input type="hidden" name="attachable_type" value="task">
                     <input type="hidden" name="attachable_id" value="{{ $task->id }}">
-                    <input type="file" name="file" multiple
-                           class="text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:text-sm file:font-medium hover:file:bg-indigo-100">
+                    <input type="file" name="files[]" multiple
+                           class="text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:text-sm file:font-medium hover:file:bg-indigo-100 flex-1 min-w-0">
                     <button type="submit"
                             class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-1.5 rounded-lg transition flex-shrink-0">
                         Upload
@@ -79,11 +111,19 @@
                 {{-- New comment form --}}
                 @can('create', App\Models\Comment::class)
                 <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
-                    <form method="POST" action="{{ route('comments.store', $task) }}">
+                    <form method="POST" action="{{ route('comments.store', $task) }}"
+                          enctype="multipart/form-data">
                         @csrf
                         <div>
                             <textarea name="body" rows="3" placeholder="Write a comment…" required
-                                      class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('body') }}</textarea>
+                                      data-easymde
+                                      data-image-upload-url="{{ route('attachments.image-upload') }}"
+                                      data-csrf="{{ csrf_token() }}">{{ old('body') }}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Attachments</label>
+                            <input type="file" name="attachments[]" multiple
+                                   class="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:font-medium hover:file:bg-indigo-100">
                         </div>
                         <div class="flex items-center justify-between">
                             @php $role = auth()->user()->projectRole($project->id); @endphp

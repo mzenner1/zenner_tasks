@@ -72,6 +72,20 @@ class TaskController extends Controller
             'properties' => null,
         ]);
 
+        // Save any uploaded attachments
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('attachments/tasks/' . $task->id, 'local');
+                $task->attachments()->create([
+                    'user_id'   => auth()->id(),
+                    'filename'  => $file->getClientOriginalName(),
+                    'path'      => $path,
+                    'mime_type' => $file->getMimeType(),
+                    'size'      => $file->getSize(),
+                ]);
+            }
+        }
+
         // Fire TaskCreated event → notifies assignees
         $task->load('assignees', 'project');
         TaskCreated::dispatch($task);
@@ -172,6 +186,20 @@ class TaskController extends Controller
                 'event'      => $change['event'],
                 'properties' => $change['properties'],
             ]);
+        }
+
+        // Save any newly uploaded attachments
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('attachments/tasks/' . $task->id, 'local');
+                $task->attachments()->create([
+                    'user_id'   => auth()->id(),
+                    'filename'  => $file->getClientOriginalName(),
+                    'path'      => $path,
+                    'mime_type' => $file->getMimeType(),
+                    'size'      => $file->getSize(),
+                ]);
+            }
         }
 
         // Fire TaskUpdated event → notifies assignees of relevant changes

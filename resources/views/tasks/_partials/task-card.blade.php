@@ -1,9 +1,12 @@
 <div class="bg-white rounded-lg border border-gray-200 p-3 shadow-sm cursor-grab hover:shadow-md transition group"
      data-task-id="{{ $task->id }}">
-    <a href="{{ route('projects.tasks.show', [$project, $task]) }}"
-       class="block text-sm font-medium text-gray-900 group-hover:text-indigo-600 leading-snug">
-        {{ $task->title }}
-    </a>
+    <div class="flex items-start gap-1">
+        <a href="{{ route('projects.tasks.show', [$project, $task]) }}"
+           class="block text-sm font-medium text-gray-900 group-hover:text-indigo-600 leading-snug">
+            <span class="font-mono text-indigo-500 font-semibold">{{ $task->task_number_label }}</span>
+            <span class="text-gray-400 mx-0.5">–</span>{{ $task->title }}
+        </a>
+    </div>
 
     <div class="flex items-center justify-between mt-2">
         {{-- Priority --}}

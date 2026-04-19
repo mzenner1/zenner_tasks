@@ -1,4 +1,4 @@
-<x-app-layout title="New Task">
+<x-app-layout :title="'New Task — ' . $project->name">
 <div class="max-w-2xl space-y-6">
     <div class="flex items-center gap-2 text-sm text-gray-500">
         <a href="{{ route('projects.show', $project) }}" class="hover:text-indigo-600">{{ $project->name }}</a>
@@ -9,6 +9,7 @@
     <h1 class="text-2xl font-bold text-gray-900">New Task</h1>
 
     <form method="POST" action="{{ route('projects.tasks.store', $project) }}"
+          enctype="multipart/form-data"
           class="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
         @csrf
 
@@ -20,9 +21,11 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-xs font-normal text-gray-400">(Markdown supported)</span></label>
-            <textarea name="description" rows="5"
-                      class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">{{ old('description') }}</textarea>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-xs font-normal text-gray-400">(Markdown — drag &amp; drop images supported)</span></label>
+            <textarea name="description"
+                      data-easymde
+                      data-image-upload-url="{{ route('attachments.image-upload') }}"
+                      data-csrf="{{ csrf_token() }}">{{ old('description') }}</textarea>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -67,6 +70,13 @@
                 </div>
             </div>
             @endcan
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
+            <input type="file" name="attachments[]" multiple
+                   class="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:font-medium hover:file:bg-indigo-100">
+            <p class="text-xs text-gray-400 mt-1">Attach any number of files (max 20 MB each).</p>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-2">

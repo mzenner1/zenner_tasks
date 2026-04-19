@@ -15,7 +15,7 @@ class ProjectController extends Controller
     {
         $this->authorize('viewAny', Project::class);
 
-        $projects = Project::scopeForUser(Project::query(), auth()->user())
+        $projects = Project::query()->forUser(auth()->user())
             ->withCount('tasks')
             ->orderBy('name')
             ->get();

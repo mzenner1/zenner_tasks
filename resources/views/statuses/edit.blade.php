@@ -1,4 +1,4 @@
-<x-app-layout title="Edit Status">
+<x-app-layout :title="'Edit: ' . $status->name">
 <div class="max-w-lg space-y-6">
     <div class="flex items-center gap-2 text-sm text-gray-500">
         <a href="{{ route('projects.statuses.index', $project) }}" class="hover:text-indigo-600">Statuses</a>

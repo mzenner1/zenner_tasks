@@ -38,7 +38,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Statuses
         Route::resource('projects/{project}/statuses', StatusController::class)
-            ->except(['show']);
+            ->except(['show'])
+            ->names([
+                'index'   => 'projects.statuses.index',
+                'create'  => 'projects.statuses.create',
+                'store'   => 'projects.statuses.store',
+                'edit'    => 'projects.statuses.edit',
+                'update'  => 'projects.statuses.update',
+                'destroy' => 'projects.statuses.destroy',
+            ]);
         Route::post('projects/{project}/statuses/reorder', [StatusController::class, 'reorder'])
             ->name('projects.statuses.reorder');
 
@@ -64,8 +72,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('comments/{comment}',     [CommentController::class, 'destroy'])->name('comments.destroy');
 
     // Attachments
-    Route::post('attachments',              [AttachmentController::class, 'store'])->name('attachments.store');
-    Route::delete('attachments/{attachment}',[AttachmentController::class, 'destroy'])->name('attachments.destroy');
+    Route::post('attachments',                        [AttachmentController::class, 'store'])->name('attachments.store');
+    Route::delete('attachments/{attachment}',          [AttachmentController::class, 'destroy'])->name('attachments.destroy');
+    Route::post('attachments/image-upload',            [AttachmentController::class, 'imageUpload'])->name('attachments.image-upload');
+    Route::get('attachments/{attachment}/download',    [AttachmentController::class, 'download'])->name('attachments.download');
 
     // Notifications
     Route::get('notifications',                     [NotificationController::class, 'index'])->name('notifications.index');

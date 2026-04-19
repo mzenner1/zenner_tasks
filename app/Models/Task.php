@@ -17,6 +17,7 @@ class Task extends Model
 
     protected $fillable = [
         'project_id',
+        'task_number',
         'status_id',
         'created_by',
         'title',
@@ -31,7 +32,26 @@ class Task extends Model
         'due_date'    => 'date',
         'is_archived' => 'boolean',
         'sort_order'  => 'integer',
+        'task_number' => 'integer',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Task $task) {
+            if (empty($task->task_number)) {
+                $max = static::where('project_id', $task->project_id)->max('task_number');
+                $task->task_number = ($max ?? 0) + 1;
+            }
+        });
+    }
+
+    /**
+     * Returns "#42" style label for display.
+     */
+    public function getTaskNumberLabelAttribute(): string
+    {
+        return '#' . $this->task_number;
+    }
 
     // ─── Relationships ────────────────────────────────────────────────────────
 

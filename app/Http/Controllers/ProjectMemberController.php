@@ -16,7 +16,12 @@ class ProjectMemberController extends Controller
 
         $members = $project->members()->orderBy('name')->get();
 
-        return view('projects.members', compact('project', 'members'));
+        $memberIds = $members->pluck('id');
+        $existingUsers = User::whereNotIn('id', $memberIds)
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
+
+        return view('projects.members', compact('project', 'members', 'existingUsers'));
     }
 
     public function store(StoreProjectMemberRequest $request, Project $project)
@@ -24,18 +29,25 @@ class ProjectMemberController extends Controller
         $this->authorize('manageMembers', $project);
 
         $isNewUser = false;
-        $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
-            // Create placeholder user with null password — they'll set it via invite link
-            $user = User::create([
-                'name'       => explode('@', $request->email)[0],
-                'email'      => $request->email,
-                'password'   => null,
-                'role'       => 'client',
-                'invited_by' => auth()->id(),
-            ]);
-            $isNewUser = true;
+        if ($request->input('_mode') === 'existing') {
+            // Existing user selected from dropdown
+            $user = User::findOrFail($request->user_id);
+        } else {
+            // Email invite path
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                // Create placeholder user with null password — they'll set it via invite link
+                $user = User::create([
+                    'name'       => explode('@', $request->email)[0],
+                    'email'      => $request->email,
+                    'password'   => null,
+                    'role'       => 'client',
+                    'invited_by' => auth()->id(),
+                ]);
+                $isNewUser = true;
+            }
         }
 
         // Avoid duplicate membership
@@ -46,7 +58,7 @@ class ProjectMemberController extends Controller
 
         $project->members()->attach($user->id, ['project_role' => $request->project_role]);
 
-        // Fire UserInvited event → sends ProjectInvitationNotification with signed URL
+        // Fire UserInvited event → sends notification
         UserInvited::dispatch($user, $project, auth()->user());
 
         return redirect()->route('projects.members.index', $project)

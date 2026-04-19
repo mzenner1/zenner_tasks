@@ -6,10 +6,13 @@
 
     {{-- Title + project --}}
     <div class="flex-1 min-w-0">
-        <a href="{{ route('projects.tasks.show', [$task->project, $task]) }}"
-           class="text-sm font-medium text-gray-900 hover:text-indigo-600 truncate block">
-            {{ $task->title }}
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('projects.tasks.show', [$task->project, $task]) }}"
+               class="text-sm font-medium text-gray-900 hover:text-indigo-600 truncate">
+                {{ $task->title }}
+            </a>
+            <span class="text-xs text-gray-400 font-mono flex-shrink-0">{{ $task->task_number_label }}</span>
+        </div>
         <span class="text-xs text-gray-400">{{ $task->project->name }}</span>
     </div>
 

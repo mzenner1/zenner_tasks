@@ -1,4 +1,4 @@
-<x-app-layout title="Edit User">
+<x-app-layout :title="'Edit: ' . $user->name">
 <div class="max-w-lg space-y-6">
     <div class="flex items-center gap-2 text-sm text-gray-500">
         <a href="{{ route('admin.users.index') }}" class="hover:text-indigo-600">Users</a>

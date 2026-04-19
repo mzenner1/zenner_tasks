@@ -36,6 +36,20 @@ class CommentController extends Controller
             'properties' => ['comment_id' => $comment->id, 'is_internal' => $isInternal],
         ]);
 
+        // Save any uploaded attachments
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('attachments/comments/' . $comment->id, 'local');
+                $comment->attachments()->create([
+                    'user_id'   => auth()->id(),
+                    'filename'  => $file->getClientOriginalName(),
+                    'path'      => $path,
+                    'mime_type' => $file->getMimeType(),
+                    'size'      => $file->getSize(),
+                ]);
+            }
+        }
+
         // Fire CommentPosted event → notifies assignees + creator
         $comment->load('author', 'task.project', 'task.assignees', 'task.creator');
         CommentPosted::dispatch($comment);

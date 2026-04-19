@@ -11,9 +11,16 @@ class StoreProjectMemberRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            'email'        => ['required', 'email'],
+        $rules = [
             'project_role' => ['required', Rule::in(['admin', 'member', 'client'])],
         ];
+
+        if ($this->input('_mode') === 'existing') {
+            $rules['user_id'] = ['required', 'exists:users,id'];
+        } else {
+            $rules['email'] = ['required', 'email'];
+        }
+
+        return $rules;
     }
 }

@@ -11,9 +11,11 @@ class StoreCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'body'        => ['required', 'string'],
-            'is_internal' => ['nullable', 'boolean'],
-            'parent_id'   => ['nullable', 'exists:comments,id'],
+            'body'          => ['required', 'string'],
+            'is_internal'   => ['nullable', 'boolean'],
+            'parent_id'     => ['nullable', 'exists:comments,id'],
+            'attachments'   => ['nullable', 'array'],
+            'attachments.*' => ['file', 'max:20480'],
         ];
     }
 }

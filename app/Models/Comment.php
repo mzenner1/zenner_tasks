@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use League\CommonMark\CommonMarkConverter;
 
 class Comment extends Model
 {
@@ -51,6 +52,22 @@ class Comment extends Model
     public function attachments(): MorphMany
     {
         return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    /**
+     * Render the comment body as safe HTML (Markdown → HTML).
+     */
+    public function bodyHtml(): string
+    {
+        static $converter;
+        $converter ??= new CommonMarkConverter([
+            'html_input'         => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
+        return $converter->convert($this->body)->getContent();
     }
 
     // ─── Scopes ───────────────────────────────────────────────────────────────

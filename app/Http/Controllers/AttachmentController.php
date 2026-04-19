@@ -6,15 +6,18 @@ use App\Models\Attachment;
 use App\Models\Comment;
 use App\Models\Task;
 use App\Http\Requests\StoreAttachmentRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class AttachmentController extends Controller
 {
+    /**
+     * Store one or more file attachments on a task or comment.
+     */
     public function store(StoreAttachmentRequest $request)
     {
         $this->authorize('create', Attachment::class);
 
-        // Resolve the attachable model (task or comment)
         if ($request->attachable_type === 'task') {
             $attachable = Task::findOrFail($request->attachable_id);
             $dir = 'attachments/tasks/' . $attachable->id;
@@ -23,22 +26,46 @@ class AttachmentController extends Controller
             $dir = 'attachments/comments/' . $attachable->id;
         }
 
-        $file = $request->file('file');
-        $path = $file->store($dir, 'local');
+        foreach ($request->file('files') as $file) {
+            $path = $file->store($dir, 'local');
+            $attachable->attachments()->create([
+                'user_id'   => auth()->id(),
+                'filename'  => $file->getClientOriginalName(),
+                'path'      => $path,
+                'mime_type' => $file->getMimeType(),
+                'size'      => $file->getSize(),
+            ]);
+        }
 
-        $attachable->attachments()->create([
-            'user_id'   => auth()->id(),
-            'filename'  => $file->getClientOriginalName(),
-            'path'      => $path,
-            'mime_type' => $file->getMimeType(),
-            'size'      => $file->getSize(),
-        ]);
-
-        // Redirect back to the task regardless of whether it was a task or comment attachment
         $task = $attachable instanceof Task ? $attachable : $attachable->task;
 
         return redirect()->route('projects.tasks.show', [$task->project_id, $task])
-            ->with('success', 'File uploaded.');
+            ->with('success', 'File(s) uploaded.');
+    }
+
+    /**
+     * Accept an image dropped/pasted into EasyMDE, store it publicly, return JSON {url}.
+     */
+    public function imageUpload(Request $request)
+    {
+        $this->authorize('create', Attachment::class);
+
+        $request->validate(['image' => ['required', 'image', 'max:10240']]);
+
+        $file = $request->file('image');
+        $path = $file->store('inline-images', 'public');
+
+        return response()->json(['url' => Storage::disk('public')->url($path)]);
+    }
+
+    /**
+     * Stream a private attachment to the authenticated user.
+     */
+    public function download(Attachment $attachment)
+    {
+        $this->authorize('view', $attachment);
+
+        return Storage::disk('local')->download($attachment->path, $attachment->filename);
     }
 
     public function destroy(Attachment $attachment)
@@ -48,7 +75,6 @@ class AttachmentController extends Controller
         Storage::disk('local')->delete($attachment->path);
         $attachment->delete();
 
-        // Resolve task for redirect
         $attachable = $attachment->attachable;
         $task = $attachable instanceof Task ? $attachable : $attachable->task;
 

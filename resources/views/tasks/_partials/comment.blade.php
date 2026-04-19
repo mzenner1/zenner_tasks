@@ -29,7 +29,49 @@
     </div>
 
     {{-- Comment body --}}
-    <div class="text-sm text-gray-700 ml-9 leading-relaxed">{{ $comment->body }}</div>
+    <div class="text-sm text-gray-700 ml-9 leading-relaxed prose prose-sm max-w-none">{!! $comment->bodyHtml() !!}</div>
+
+    {{-- Comment attachments --}}
+    @if($comment->attachments->count())
+    <div class="ml-9 mt-2 space-y-2">
+        @php $imgs = $comment->attachments->filter->isImage(); $docs = $comment->attachments->reject->isImage(); @endphp
+        @if($imgs->count())
+        <div class="flex flex-wrap gap-2">
+            @foreach($imgs as $att)
+            <div class="relative group">
+                <a href="{{ route('attachments.download', $att) }}" target="_blank">
+                    <img src="{{ route('attachments.download', $att) }}"
+                         alt="{{ $att->filename }}"
+                         class="h-20 w-20 object-cover rounded-lg border border-gray-200">
+                </a>
+                @can('delete', $att)
+                <form method="POST" action="{{ route('attachments.destroy', $att) }}"
+                      class="absolute top-1 right-1 hidden group-hover:block">
+                    @csrf @method('DELETE')
+                    <button onclick="return confirm('Delete?')"
+                            class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs leading-none">&times;</button>
+                </form>
+                @endcan
+            </div>
+            @endforeach
+        </div>
+        @endif
+        @foreach($docs as $att)
+        <div class="flex items-center gap-2 text-sm">
+            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+            <a href="{{ route('attachments.download', $att) }}"
+               class="truncate text-indigo-600 hover:underline">{{ $att->filename }}</a>
+            <span class="text-gray-400 text-xs">{{ $att->humanSize() }}</span>
+            @can('delete', $att)
+            <form method="POST" action="{{ route('attachments.destroy', $att) }}" class="inline">
+                @csrf @method('DELETE')
+                <button onclick="return confirm('Delete?')" class="text-red-400 hover:text-red-600 text-xs">Delete</button>
+            </form>
+            @endcan
+        </div>
+        @endforeach
+    </div>
+    @endif
 
     {{-- Edit form (hidden by default) --}}
     @can('update', $comment)
@@ -66,11 +108,18 @@
         <button onclick="document.getElementById('reply-{{ $comment->id }}').classList.toggle('hidden')"
                 class="text-xs text-gray-400 hover:text-indigo-600">↩ Reply</button>
         <div id="reply-{{ $comment->id }}" class="hidden mt-2">
-            <form method="POST" action="{{ route('comments.store', $comment->task_id) }}">
+            <form method="POST" action="{{ route('comments.store', $comment->task_id) }}"
+                  enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="parent_id" value="{{ $comment->id }}">
                 <textarea name="body" rows="2" placeholder="Write a reply…"
-                          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                          data-easymde
+                          data-image-upload-url="{{ route('attachments.image-upload') }}"
+                          data-csrf="{{ csrf_token() }}"></textarea>
+                <div class="mt-2">
+                    <input type="file" name="attachments[]" multiple
+                           class="block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:text-xs file:font-medium hover:file:bg-indigo-100">
+                </div>
                 <button type="submit"
                         class="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg transition">
                     Post Reply

@@ -11,7 +11,8 @@ class StoreAttachmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file'            => ['required', 'file', 'max:20480'], // 20MB max
+            'files'           => ['required', 'array', 'min:1'],
+            'files.*'         => ['file', 'max:20480'],
             'attachable_type' => ['required', 'string', 'in:task,comment'],
             'attachable_id'   => ['required', 'string'],
         ];
