@@ -73,6 +73,18 @@ class User extends Authenticatable
 
     // ─── Preferences ─────────────────────────────────────────────────────────
 
+    public function getProjectFiltersPreference(string $projectId): array
+    {
+        return data_get($this->preferences, 'project_filters.' . $projectId) ?? [];
+    }
+
+    public function setProjectFiltersPreference(string $projectId, array $filters): void
+    {
+        $prefs = $this->preferences ?? [];
+        data_set($prefs, 'project_filters.' . $projectId, $filters);
+        $this->update(['preferences' => $prefs]);
+    }
+
     public function getProjectSortPreference(string $projectId): ?string
     {
         return data_get($this->preferences, 'project_sort.' . $projectId);

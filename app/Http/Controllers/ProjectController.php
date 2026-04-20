@@ -88,25 +88,47 @@ class ProjectController extends Controller
             return view('projects.board', compact('project', 'statuses', 'members'));
         }
 
-        // ── List view: flat task query with global sort ────────────────────────
+        // ── List view: flat task query with global sort & filters ───────────────
 
-        // Persist sort preference if explicitly provided in the request
+        // ── Persist / resolve sort ────────────────────────────────────────────
         if ($request->has('sort')) {
             $user->setProjectSortPreference($project->id, $request->sort ?: null);
         }
 
-        // Resolve active sort: request > stored pref > default 'updated'
         $activeSort = $request->filled('sort')
             ? $request->sort
             : ($user->getProjectSortPreference($project->id) ?? 'updated');
 
+        // ── Persist / resolve filters ─────────────────────────────────────────
+        $filterKeys = ['status_ids', 'priorities', 'assignees'];
+        $filtersInRequest = collect($filterKeys)->filter(fn ($k) => $request->has($k))->isNotEmpty();
+
+        if ($request->boolean('clear_filters')) {
+            $user->setProjectFiltersPreference($project->id, []);
+            $activeFilters = [];
+        } elseif ($filtersInRequest) {
+            $savedFilters = [
+                'status_ids' => $request->input('status_ids', []),
+                'priorities' => $request->input('priorities', []),
+                'assignees'  => $request->input('assignees', []),
+            ];
+            $user->setProjectFiltersPreference($project->id, $savedFilters);
+            $activeFilters = $savedFilters;
+        } else {
+            $activeFilters = $user->getProjectFiltersPreference($project->id);
+        }
+
+        $filterStatusIds = array_filter((array) ($activeFilters['status_ids'] ?? []));
+        $filterPriorities = array_filter((array) ($activeFilters['priorities'] ?? []));
+        $filterAssignees  = array_filter((array) ($activeFilters['assignees']  ?? []));
+
         $tasksQuery = $project->tasks()
             ->where('is_archived', false)
             ->with(['assignees', 'status', 'creator'])
-            ->when($request->assignee,  fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->where('user_id', $request->assignee)))
-            ->when($request->status_id, fn ($q) => $q->where('status_id', $request->status_id))
-            ->when($request->priority,  fn ($q) => $q->where('priority', $request->priority))
-            ->when($request->search,    fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'));
+            ->when(!empty($filterAssignees),  fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->whereIn('user_id', $filterAssignees)))
+            ->when(!empty($filterStatusIds),  fn ($q) => $q->whereIn('status_id', $filterStatusIds))
+            ->when(!empty($filterPriorities), fn ($q) => $q->whereIn('priority', $filterPriorities))
+            ->when($request->search,          fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'));
 
         match ($activeSort) {
             'title'        => $tasksQuery->orderBy('title', 'asc'),
@@ -120,7 +142,10 @@ class ProjectController extends Controller
 
         $tasks = $tasksQuery->get();
 
-        return view('projects.show', compact('project', 'statuses', 'members', 'tasks', 'activeSort'));
+        return view('projects.show', compact(
+            'project', 'statuses', 'members', 'tasks',
+            'activeSort', 'filterStatusIds', 'filterPriorities', 'filterAssignees'
+        ));
     }
 
     public function edit(Project $project)
