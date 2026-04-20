@@ -201,11 +201,19 @@
                 @forelse($tasks as $task)
                 <tr class="hover:bg-gray-50 transition">
                     <td class="px-5 py-3">
-                        <a href="{{ route('projects.tasks.show', [$project, $task]) }}"
-                           class="font-medium text-gray-900 hover:text-indigo-600">
-                            <span class="font-mono text-indigo-500 font-semibold">{{ $task->task_number_label }}</span>
-                            <span class="text-gray-400 mx-0.5">–</span>{{ $task->title }}
-                        </a>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('projects.tasks.show', [$project, $task]) }}"
+                               class="font-medium text-gray-900 hover:text-indigo-600">
+                                <span class="font-mono text-indigo-500 font-semibold">{{ $task->task_number_label }}</span>
+                                <span class="text-gray-400 mx-0.5">–</span>{{ $task->title }}
+                            </a>
+                            @if($task->comments_count > 0)
+                            <span class="inline-flex items-center gap-1 text-xs text-gray-400" title="{{ $task->comments_count }} {{ Str::plural('comment', $task->comments_count) }}">
+                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                {{ $task->comments_count }}
+                            </span>
+                            @endif
+                        </div>
                     </td>
                     <td class="px-4 py-3">
                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium text-white whitespace-nowrap"

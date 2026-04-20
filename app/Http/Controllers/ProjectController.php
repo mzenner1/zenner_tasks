@@ -125,6 +125,7 @@ class ProjectController extends Controller
         $tasksQuery = $project->tasks()
             ->where('is_archived', false)
             ->with(['assignees', 'status', 'creator'])
+            ->withCount('comments')
             ->when(!empty($filterAssignees),  fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->whereIn('user_id', $filterAssignees)))
             ->when(!empty($filterStatusIds),  fn ($q) => $q->whereIn('status_id', $filterStatusIds))
             ->when(!empty($filterPriorities), fn ($q) => $q->whereIn('priority', $filterPriorities))
