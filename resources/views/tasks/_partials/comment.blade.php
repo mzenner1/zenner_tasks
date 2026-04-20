@@ -79,7 +79,20 @@
         <form method="POST" action="{{ route('comments.update', $comment) }}">
             @csrf @method('PUT')
             <textarea name="body" rows="3"
-                      class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ $comment->body }}</textarea>
+                      data-easymde
+                      data-image-upload-url="{{ route('attachments.image-upload') }}"
+                      data-csrf="{{ csrf_token() }}">{{ $comment->body }}</textarea>
+            @php $editRole = auth()->user()->projectRole($project->id); @endphp
+            @if($editRole !== 'client')
+            <div class="mt-2">
+                <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                    <input type="checkbox" name="is_internal" value="1"
+                           {{ $comment->is_internal ? 'checked' : '' }}
+                           class="rounded border-gray-300 text-amber-500 focus:ring-amber-400">
+                    <span>Internal note (hidden from clients)</span>
+                </label>
+            </div>
+            @endif
             <div class="flex gap-2 mt-2">
                 <button type="submit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">
@@ -120,6 +133,16 @@
                     <input type="file" name="attachments[]" multiple
                            class="block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:text-xs file:font-medium hover:file:bg-indigo-100">
                 </div>
+                @php $replyRole = auth()->user()->projectRole($project->id); @endphp
+                @if($replyRole !== 'client')
+                <div class="mt-2">
+                    <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                        <input type="checkbox" name="is_internal" value="1"
+                               class="rounded border-gray-300 text-amber-500 focus:ring-amber-400">
+                        <span>Internal note (hidden from clients)</span>
+                    </label>
+                </div>
+                @endif
                 <button type="submit"
                         class="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg transition">
                     Post Reply

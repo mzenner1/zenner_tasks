@@ -65,7 +65,17 @@ class CommentController extends Controller
     {
         $this->authorize('update', $comment);
 
-        $comment->update(['body' => $request->body]);
+        $isInternal = $request->boolean('is_internal');
+
+        // Clients cannot mark comments as internal
+        if ($isInternal) {
+            $this->authorize('createInternal', [Comment::class, $comment->task->project_id]);
+        }
+
+        $comment->update([
+            'body'        => $request->body,
+            'is_internal' => $isInternal,
+        ]);
 
         return redirect()->route('projects.tasks.show', [$comment->task->project_id, $comment->task_id])
             ->with('success', 'Comment updated.');

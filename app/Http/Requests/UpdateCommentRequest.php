@@ -11,7 +11,8 @@ class UpdateCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'body' => ['required', 'string'],
+            'body'        => ['required', 'string'],
+            'is_internal' => ['nullable', 'boolean'],
         ];
     }
 }

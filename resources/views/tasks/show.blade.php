@@ -127,7 +127,7 @@
                         </div>
                         <div class="flex items-center justify-between">
                             @php $role = auth()->user()->projectRole($project->id); @endphp
-                            @if(in_array($role, ['admin','member']))
+                            @if($role !== 'client')
                             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                                 <input type="checkbox" name="is_internal" value="1"
                                        class="rounded border-gray-300 text-amber-500 focus:ring-amber-400">
