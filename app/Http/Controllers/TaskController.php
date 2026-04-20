@@ -65,6 +65,8 @@ class TaskController extends Controller
             $task->assignees()->sync($request->assignees);
         }
 
+        $task->update(['last_activity_at' => now()]);
+
         ActivityLog::create([
             'task_id'    => $task->id,
             'user_id'    => auth()->id(),
@@ -172,6 +174,7 @@ class TaskController extends Controller
         }
 
         $task->save();
+        $task->update(['last_activity_at' => now()]);
 
         // Sync assignees if provided
         if ($request->has('assignees')) {

@@ -26,13 +26,15 @@ class Task extends Model
         'due_date',
         'sort_order',
         'is_archived',
+        'last_activity_at',
     ];
 
     protected $casts = [
         'due_date'    => 'date',
         'is_archived' => 'boolean',
         'sort_order'  => 'integer',
-        'task_number' => 'integer',
+        'task_number'      => 'integer',
+        'last_activity_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -104,7 +106,8 @@ class Task extends Model
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_archived', false);
+        return $query->where('is_archived',
+        'last_activity_at', false);
     }
 
     public function scopeForProject(Builder $query, string $projectId): Builder

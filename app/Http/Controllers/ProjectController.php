@@ -70,22 +70,57 @@ class ProjectController extends Controller
     {
         $this->authorize('view', $project);
 
-        $statuses = $project->statuses()->with(['tasks' => function ($q) use ($request, $project) {
-            $q->where('is_archived', false)
-              ->with(['assignees', 'creator'])
-              ->when($request->assignee, fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->where('user_id', $request->assignee)))
-              ->when($request->priority,  fn ($q) => $q->where('priority', $request->priority))
-              ->when($request->search,    fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'))
-              ->orderBy('sort_order');
-        }])->get();
-
+        $user    = auth()->user();
         $members = $project->members;
+        $statuses = $project->statuses;
 
+        // ── Board view: tasks grouped per status column ───────────────────────
         if ($request->view === 'board') {
+            $statuses->load(['tasks' => function ($q) use ($request) {
+                $q->where('is_archived', false)
+                  ->with(['assignees', 'creator'])
+                  ->when($request->assignee, fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->where('user_id', $request->assignee)))
+                  ->when($request->priority,  fn ($q) => $q->where('priority', $request->priority))
+                  ->when($request->search,    fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'))
+                  ->orderBy('sort_order');
+            }]);
+
             return view('projects.board', compact('project', 'statuses', 'members'));
         }
 
-        return view('projects.show', compact('project', 'statuses', 'members'));
+        // ── List view: flat task query with global sort ────────────────────────
+
+        // Persist sort preference if explicitly provided in the request
+        if ($request->has('sort')) {
+            $user->setProjectSortPreference($project->id, $request->sort ?: null);
+        }
+
+        // Resolve active sort: request > stored pref > default 'updated'
+        $activeSort = $request->filled('sort')
+            ? $request->sort
+            : ($user->getProjectSortPreference($project->id) ?? 'updated');
+
+        $tasksQuery = $project->tasks()
+            ->where('is_archived', false)
+            ->with(['assignees', 'status', 'creator'])
+            ->when($request->assignee,  fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->where('user_id', $request->assignee)))
+            ->when($request->status_id, fn ($q) => $q->where('status_id', $request->status_id))
+            ->when($request->priority,  fn ($q) => $q->where('priority', $request->priority))
+            ->when($request->search,    fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'));
+
+        match ($activeSort) {
+            'title'        => $tasksQuery->orderBy('title', 'asc'),
+            'priority'     => $tasksQuery->orderByRaw("CASE priority WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'normal' THEN 3 WHEN 'low' THEN 4 END"),
+            'due_date'     => $tasksQuery->orderByRaw('due_date IS NULL, due_date ASC'),
+            'created'      => $tasksQuery->orderBy('created_at', 'desc'),
+            'created_last' => $tasksQuery->orderBy('created_at', 'asc'),
+            'updated_last' => $tasksQuery->orderByRaw('last_activity_at IS NULL DESC, last_activity_at ASC'),
+            default        => $tasksQuery->orderByRaw('last_activity_at IS NULL, last_activity_at DESC'),
+        };
+
+        $tasks = $tasksQuery->get();
+
+        return view('projects.show', compact('project', 'statuses', 'members', 'tasks', 'activeSort'));
     }
 
     public function edit(Project $project)

@@ -41,21 +41,21 @@
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search tasks…"
                    class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48">
 
-            <select name="status_id" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select name="status_id" class="border border-gray-300 rounded-lg px-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 min-w-[130px]">
                 <option value="">All Statuses</option>
                 @foreach($statuses as $status)
                 <option value="{{ $status->id }}" {{ request('status_id') == $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
                 @endforeach
             </select>
 
-            <select name="priority" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select name="priority" class="border border-gray-300 rounded-lg px-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 min-w-[130px]">
                 <option value="">All Priorities</option>
                 @foreach(['low','normal','high','urgent'] as $p)
                 <option value="{{ $p }}" {{ request('priority') === $p ? 'selected' : '' }}>{{ ucfirst($p) }}</option>
                 @endforeach
             </select>
 
-            <select name="assignee" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select name="assignee" class="border border-gray-300 rounded-lg px-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 min-w-[140px]">
                 <option value="">All Assignees</option>
                 @foreach($members as $member)
                 <option value="{{ $member->id }}" {{ request('assignee') === $member->id ? 'selected' : '' }}>{{ $member->name }}</option>
@@ -68,6 +68,32 @@
             @endif
         </form>
     </div>
+
+
+    {{-- Sort (list view only) --}}
+    @if(request('view', 'list') === 'list')
+    <div class="flex items-center gap-2">
+        <form method="GET" action="{{ route('projects.show', $project) }}" id="sort-form">
+            @foreach(request()->except('sort') as $key => $val)
+                <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+            @endforeach
+            <div class="flex items-center gap-2">
+                <label for="sort-select" class="text-sm text-gray-500 whitespace-nowrap">Sort by:</label>
+                <select id="sort-select" name="sort"
+                        onchange="document.getElementById('sort-form').submit()"
+                        class="border border-gray-300 rounded-lg px-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 min-w-[200px]">
+                    <option value="updated"      {{ ($activeSort ?? 'updated') === 'updated'      ? 'selected' : '' }}>Recently Updated</option>
+                    <option value="updated_last" {{ ($activeSort ?? '') === 'updated_last' ? 'selected' : '' }}>Least Recently Updated</option>
+                    <option value="created"      {{ ($activeSort ?? '') === 'created'      ? 'selected' : '' }}>Newest First</option>
+                    <option value="created_last" {{ ($activeSort ?? '') === 'created_last' ? 'selected' : '' }}>Oldest First</option>
+                    <option value="title"        {{ ($activeSort ?? '') === 'title'        ? 'selected' : '' }}>Title (A–Z)</option>
+                    <option value="priority"     {{ ($activeSort ?? '') === 'priority'     ? 'selected' : '' }}>Priority (Urgent → Low)</option>
+                    <option value="due_date"     {{ ($activeSort ?? '') === 'due_date'     ? 'selected' : '' }}>Due Date</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    @endif
 
     {{-- Task List --}}
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -82,14 +108,14 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-                @forelse($statuses->flatMap->tasks as $task)
+                @forelse($tasks as $task)
                 <tr class="hover:bg-gray-50 transition">
                     <td class="px-5 py-3">
                         <a href="{{ route('projects.tasks.show', [$project, $task]) }}"
                            class="font-medium text-gray-900 hover:text-indigo-600"><span class="font-mono text-indigo-500 font-semibold">{{ $task->task_number_label }}</span><span class="text-gray-400 mx-0.5">–</span>{{ $task->title }}</a>
                     </td>
                     <td class="px-4 py-3">
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium text-white"
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium text-white whitespace-nowrap"
                               style="background-color: {{ $task->status->color }}">
                             {{ $task->status->name }}
                         </span>

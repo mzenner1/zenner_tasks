@@ -36,6 +36,9 @@ class CommentController extends Controller
             'properties' => ['comment_id' => $comment->id, 'is_internal' => $isInternal],
         ]);
 
+        // Touch task's last_activity_at so it surfaces in 'updated' sort
+        $task->update(['last_activity_at' => now()]);
+
         // Save any uploaded attachments
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {

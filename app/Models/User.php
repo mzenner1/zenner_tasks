@@ -22,6 +22,7 @@ class User extends Authenticatable
         'avatar',
         'invited_by',
         'last_active_at',
+        'preferences',
     ];
 
     protected $hidden = [
@@ -35,6 +36,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_active_at'    => 'datetime',
             'password'          => 'hashed',
+            'preferences'       => 'array',
         ];
     }
 
@@ -67,5 +69,19 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return in_array($this->role, ['super_admin', 'admin']);
+    }
+
+    // ─── Preferences ─────────────────────────────────────────────────────────
+
+    public function getProjectSortPreference(string $projectId): ?string
+    {
+        return data_get($this->preferences, 'project_sort.' . $projectId);
+    }
+
+    public function setProjectSortPreference(string $projectId, ?string $sort): void
+    {
+        $prefs = $this->preferences ?? [];
+        data_set($prefs, 'project_sort.' . $projectId, $sort);
+        $this->update(['preferences' => $prefs]);
     }
 }
