@@ -179,6 +179,14 @@
 
     {{-- Task List --}}
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        {{-- Count bar --}}
+        <div class="flex items-center px-5 py-2.5 border-b border-gray-100 bg-gray-50 text-sm text-gray-500">
+            @if($filteredTaskCount === $totalTaskCount)
+                <span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}
+            @else
+                <span class="font-medium text-indigo-600">{{ $filteredTaskCount }}</span>&nbsp;of&nbsp;<span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}<span class="ml-1.5 text-gray-400">— filtered</span>
+            @endif
+        </div>
         <table class="w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>

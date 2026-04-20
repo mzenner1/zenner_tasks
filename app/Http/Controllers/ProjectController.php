@@ -140,11 +140,14 @@ class ProjectController extends Controller
             default        => $tasksQuery->orderByRaw('last_activity_at IS NULL, last_activity_at DESC'),
         };
 
+        $totalTaskCount = $project->tasks()->where('is_archived', false)->count();
         $tasks = $tasksQuery->get();
+        $filteredTaskCount = $tasks->count();
 
         return view('projects.show', compact(
             'project', 'statuses', 'members', 'tasks',
-            'activeSort', 'filterStatusIds', 'filterPriorities', 'filterAssignees'
+            'activeSort', 'filterStatusIds', 'filterPriorities', 'filterAssignees',
+            'totalTaskCount', 'filteredTaskCount'
         ));
     }
 
