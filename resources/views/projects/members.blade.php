@@ -14,11 +14,17 @@
            class="text-sm text-gray-500 hover:text-indigo-600">⚙ Project Settings</a>
     </div>
 
+    @if(session('success'))
+    <div class="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-4 py-3">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+    <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">{{ session('error') }}</div>
+    @endif
+
     {{-- ── Add member ───────────────────────────────────────────────── --}}
     <div class="bg-white rounded-xl border border-gray-200 p-5 space-y-5" x-data="{ mode: '{{ $existingUsers->isEmpty() ? 'email' : 'existing' }}' }">
         <h2 class="text-sm font-semibold text-gray-700">Add a Member</h2>
 
-        {{-- Mode toggle --}}
         @if($existingUsers->isNotEmpty())
         <div class="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit text-xs font-medium">
             <button type="button" @click="mode = 'existing'"
@@ -47,20 +53,11 @@
                     <option value="">— select a user —</option>
                     @foreach($existingUsers as $u)
                     <option value="{{ $u->id }}" {{ old('user_id') == $u->id ? 'selected' : '' }}>
-                        {{ $u->name }} ({{ $u->email }})
+                        {{ $u->name }} ({{ $u->email }}) — {{ ucfirst($u->role) }}
                     </option>
                     @endforeach
                 </select>
                 @error('user_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">Role</label>
-                <select name="project_role"
-                        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
-                    <option value="client">Client</option>
-                </select>
             </div>
             <button type="submit"
                     class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition flex-shrink-0">
@@ -81,20 +78,13 @@
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('email') border-red-400 @enderror">
                 @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">Role</label>
-                <select name="project_role"
-                        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
-                    <option value="client">Client</option>
-                </select>
-            </div>
             <button type="submit"
                     class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition flex-shrink-0">
                 Invite
             </button>
         </form>
+
+        <p class="text-xs text-gray-400">The user's site-wide role determines their permissions in this project.</p>
     </div>
 
     {{-- ── Current members ─────────────────────────────────────────── --}}
@@ -103,6 +93,16 @@
             <h2 class="text-sm font-semibold text-gray-700">Current Members ({{ $members->count() }})</h2>
         </div>
         @forelse($members as $member)
+        @php
+            $roleColors = [
+                'super_admin' => 'bg-purple-100 text-purple-700',
+                'admin'       => 'bg-indigo-100 text-indigo-700',
+                'member'      => 'bg-blue-100 text-blue-700',
+                'client'      => 'bg-gray-100 text-gray-600',
+            ];
+            $roleLabel = ucfirst(str_replace('_', ' ', $member->role));
+            $roleClass = $roleColors[$member->role] ?? 'bg-gray-100 text-gray-600';
+        @endphp
         <div class="flex items-center gap-4 px-5 py-4">
             <div class="w-9 h-9 rounded-full bg-indigo-400 flex items-center justify-center font-bold text-white flex-shrink-0">
                 {{ strtoupper(substr($member->name, 0, 1)) }}
@@ -111,18 +111,7 @@
                 <p class="text-sm font-medium text-gray-900">{{ $member->name }}</p>
                 <p class="text-xs text-gray-500">{{ $member->email }}</p>
             </div>
-            <form method="POST" action="{{ route('projects.members.update', [$project, $member]) }}"
-                  class="flex items-center gap-2">
-                @csrf @method('PUT')
-                <select name="project_role" onchange="this.form.submit()"
-                        class="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    @foreach(['admin','member','client'] as $role)
-                    <option value="{{ $role }}" {{ $member->pivot->project_role === $role ? 'selected' : '' }}>
-                        {{ ucfirst($role) }}
-                    </option>
-                    @endforeach
-                </select>
-            </form>
+            <span class="text-xs font-medium px-2.5 py-1 rounded-full {{ $roleClass }}">{{ $roleLabel }}</span>
             @if($member->id !== auth()->id())
             <form method="POST" action="{{ route('projects.members.destroy', [$project, $member]) }}">
                 @csrf @method('DELETE')
@@ -160,7 +149,7 @@
                         ['Edit own tasks only',              false, false, true ],
                         ['Delete tasks',                     true,  false, false],
                         ['Change task status',               true,  true,  true ],
-                        ['Assign tasks to others',           true,  true,  false],
+                        ['Assign tasks to others',           true,  true,  true ],
                         ['View internal comments',           true,  true,  false],
                         ['Post internal comments',           true,  true,  false],
                         ['Post public comments',             true,  true,  true ],
@@ -180,7 +169,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="text-xs text-gray-400 mt-4">* Super Admins have full access across all projects regardless of project role.</p>
+        <p class="text-xs text-gray-400 mt-4">* Super Admins and Admins have full access across all projects regardless of membership.</p>
     </div>
 
 </div>

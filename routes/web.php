@@ -32,7 +32,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('projects/{project}/members')->name('projects.members.')->group(function () {
             Route::get('/',         [ProjectMemberController::class, 'index'])->name('index');
             Route::post('/',        [ProjectMemberController::class, 'store'])->name('store');
-            Route::put('/{user}',   [ProjectMemberController::class, 'update'])->name('update');
             Route::delete('/{user}',[ProjectMemberController::class, 'destroy'])->name('destroy');
         });
 

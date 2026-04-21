@@ -58,12 +58,11 @@ class User extends Authenticatable
 
     /**
      * Get the user's effective role within a specific project.
-     * Checks project_members first, then falls back to the global role.
+     * Always uses the global role — per-project roles are not used.
      */
     public function projectRole(string $projectId): string
     {
-        $member = $this->projects()->where('projects.id', $projectId)->first();
-        return $member?->pivot->project_role ?? $this->role;
+        return $this->role;
     }
 
     public function isAdmin(): bool

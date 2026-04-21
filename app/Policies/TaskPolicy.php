@@ -56,7 +56,7 @@ class TaskPolicy
             return $task->created_by === $user->id;
         }
 
-        return in_array($role, ['admin', 'member']);
+        return in_array($role, ['admin', 'member', 'client']);
     }
 
     /**
@@ -84,6 +84,6 @@ class TaskPolicy
     public function assign(User $user, Task $task): bool
     {
         $role = $user->projectRole($task->project_id);
-        return in_array($role, ['admin', 'member']);
+        return in_array($role, ['admin', 'member', 'client']);
     }
 }

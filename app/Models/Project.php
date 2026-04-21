@@ -66,11 +66,11 @@ class Project extends Model
     // ─── Scopes ───────────────────────────────────────────────────────────────
 
     /**
-     * Admins see all projects; everyone else sees only projects they belong to.
+     * Super admins see all projects; everyone else only sees projects they are a member of.
      */
     public function scopeForUser(Builder $query, User $user): Builder
     {
-        if ($user->isAdmin()) {
+        if ($user->role === 'super_admin') {
             return $query;
         }
 

@@ -6,7 +6,6 @@ use App\Events\UserInvited;
 use App\Models\Project;
 use App\Models\User;
 use App\Http\Requests\StoreProjectMemberRequest;
-use App\Http\Requests\UpdateProjectMemberRequest;
 
 class ProjectMemberController extends Controller
 {
@@ -19,7 +18,7 @@ class ProjectMemberController extends Controller
         $memberIds = $members->pluck('id');
         $existingUsers = User::whereNotIn('id', $memberIds)
             ->orderBy('name')
-            ->get(['id', 'name', 'email']);
+            ->get(['id', 'name', 'email', 'role']);
 
         return view('projects.members', compact('project', 'members', 'existingUsers'));
     }
@@ -31,14 +30,11 @@ class ProjectMemberController extends Controller
         $isNewUser = false;
 
         if ($request->input('_mode') === 'existing') {
-            // Existing user selected from dropdown
             $user = User::findOrFail($request->user_id);
         } else {
-            // Email invite path
             $user = User::where('email', $request->email)->first();
 
             if (!$user) {
-                // Create placeholder user with null password — they'll set it via invite link
                 $user = User::create([
                     'name'       => explode('@', $request->email)[0],
                     'email'      => $request->email,
@@ -50,33 +46,20 @@ class ProjectMemberController extends Controller
             }
         }
 
-        // Avoid duplicate membership
         if ($project->members()->where('user_id', $user->id)->exists()) {
             return redirect()->route('projects.members.index', $project)
                 ->with('error', "{$user->name} is already a member of this project.");
         }
 
-        $project->members()->attach($user->id, ['project_role' => $request->project_role]);
+        // Use the user's global role as the project_role pivot value
+        $project->members()->attach($user->id, ['project_role' => $user->role]);
 
-        // Fire UserInvited event → sends notification
         UserInvited::dispatch($user, $project, auth()->user());
 
         return redirect()->route('projects.members.index', $project)
             ->with('success', $isNewUser
                 ? "{$user->name} was invited and added to the project."
                 : "{$user->name} added to the project.");
-    }
-
-    public function update(UpdateProjectMemberRequest $request, Project $project, User $user)
-    {
-        $this->authorize('manageMembers', $project);
-
-        $project->members()->updateExistingPivot($user->id, [
-            'project_role' => $request->project_role,
-        ]);
-
-        return redirect()->route('projects.members.index', $project)
-            ->with('success', "{$user->name}'s role updated.");
     }
 
     public function destroy(Project $project, User $user)
