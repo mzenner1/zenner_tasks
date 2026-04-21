@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($title) ? $title . ' — ' : '' }}{{ config('app.name', 'Zenner Tasks') }}</title>
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/site-logo-2-white.jpg') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet"/>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -17,9 +18,12 @@
     <aside class="flex flex-col w-64 bg-gray-900 text-gray-100 flex-shrink-0 overflow-y-auto">
 
         {{-- Logo --}}
-        <div class="flex items-center gap-2 px-5 py-5 border-b border-gray-700">
-            <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center font-bold text-white text-sm">Z</div>
-            <span class="font-semibold text-white text-lg tracking-tight">Zenner Tasks</span>
+        <div class="flex flex-col px-5 py-5 border-b border-gray-700 gap-1">
+            <div class="flex items-center gap-2">
+                <img src="{{ asset('images/site-logo-2.png') }}" alt="Zenner Tasks" class="h-6 w-auto">
+                <span class="font-semibold text-white text-lg tracking-tight">Zenner Tasks</span>
+            </div>
+            <span class="text-gray-400 tracking-wide" style="font-size:12px">Project Management, Simplified</span>
         </div>
 
         {{-- Nav --}}
