@@ -137,9 +137,28 @@ class TaskController extends Controller
 
     public function update(UpdateTaskRequest $request, Project $project, Task $task)
     {
-        $this->authorize('update', $task);
+        $hasTaskFields = $request->hasAny(['title', 'description', 'priority', 'due_date']);
+        $hasStatus     = $request->has('status_id');
+        $hasAssignees  = $request->has('assignees');
 
-        $task->fill($request->only(['title', 'description', 'status_id', 'priority', 'due_date']));
+        // Authorize each action independently so clients/members can change
+        // status and assignees on any task, not just ones they created.
+        if ($hasTaskFields) {
+            $this->authorize('update', $task);
+        }
+        if ($hasStatus) {
+            $this->authorize('changeStatus', $task);
+        }
+        if ($hasAssignees) {
+            $this->authorize('assign', $task);
+        }
+
+        if ($hasTaskFields) {
+            $task->fill($request->only(['title', 'description', 'priority', 'due_date']));
+        }
+        if ($hasStatus) {
+            $task->fill($request->only(['status_id']));
+        }
 
         // Detect changes and write to activity_log BEFORE saving
         $changes     = [];
@@ -177,8 +196,7 @@ class TaskController extends Controller
         $task->update(['last_activity_at' => now()]);
 
         // Sync assignees if provided
-        if ($request->has('assignees')) {
-            $this->authorize('assign', $task);
+        if ($hasAssignees) {
             $task->assignees()->sync($request->assignees ?? []);
         }
 

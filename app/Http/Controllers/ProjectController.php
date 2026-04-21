@@ -60,7 +60,7 @@ class ProjectController extends Controller
         }
 
         // Add creator as project admin in project_members
-        $project->members()->attach(auth()->id(), ['project_role' => 'admin']);
+        $project->members()->attach(auth()->id());
 
         return redirect()->route('projects.show', $project)
             ->with('success', 'Project created successfully.');

@@ -51,8 +51,7 @@ class ProjectMemberController extends Controller
                 ->with('error', "{$user->name} is already a member of this project.");
         }
 
-        // Use the user's global role as the project_role pivot value
-        $project->members()->attach($user->id, ['project_role' => $user->role]);
+        $project->members()->attach($user->id);
 
         UserInvited::dispatch($user, $project, auth()->user());
 

@@ -40,7 +40,7 @@
             <div class="flex items-center gap-3 text-sm">
                 <span class="w-2.5 h-2.5 rounded-full" style="background-color: {{ $project->color ?? '#6366f1' }}"></span>
                 <a href="{{ route('projects.show', $project) }}" class="text-gray-700 hover:text-indigo-600">{{ $project->name }}</a>
-                <span class="text-xs text-gray-400 ml-auto">{{ ucfirst($project->pivot->project_role) }}</span>
+                <span class="text-xs text-gray-400 ml-auto">{{ ucfirst(str_replace('_', ' ', $user->role)) }}</span>
             </div>
             @endforeach
         </div>

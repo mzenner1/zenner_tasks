@@ -29,9 +29,9 @@ function createProjectWithMembers(): array
         'is_closed' => true, 'sort_order' => 2,
     ]);
 
-    $project->members()->attach($admin->id,  ['project_role' => 'admin']);
-    $project->members()->attach($member->id, ['project_role' => 'member']);
-    $project->members()->attach($client->id, ['project_role' => 'client']);
+    $project->members()->attach($admin->id);
+    $project->members()->attach($member->id);
+    $project->members()->attach($client->id);
 
     return compact('admin', 'member', 'client', 'project', 'openStatus', 'doneStatus');
 }
@@ -43,7 +43,7 @@ test('client cannot view a project they are not a member of', function () {
     $admin   = User::factory()->admin()->create();
     $project = Project::factory()->create(['created_by' => $admin->id]);
     $project->statuses()->create(['name'=>'Open','color'=>'#6b7280','is_default'=>true,'is_closed'=>false,'sort_order'=>1]);
-    $project->members()->attach($admin->id, ['project_role' => 'admin']);
+    $project->members()->attach($admin->id);
     // client is NOT added to this project
 
     $response = $this->actingAs($client)->get(route('projects.show', $project));

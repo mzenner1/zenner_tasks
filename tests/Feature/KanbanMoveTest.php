@@ -28,9 +28,9 @@ function createKanbanSetup(): array
         'is_closed' => true, 'sort_order' => 3,
     ]);
 
-    $project->members()->attach($admin->id,  ['project_role' => 'admin']);
-    $project->members()->attach($member->id, ['project_role' => 'member']);
-    $project->members()->attach($client->id, ['project_role' => 'client']);
+    $project->members()->attach($admin->id);
+    $project->members()->attach($member->id);
+    $project->members()->attach($client->id);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,

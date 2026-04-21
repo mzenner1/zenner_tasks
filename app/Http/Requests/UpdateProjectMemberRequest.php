@@ -12,7 +12,6 @@ class UpdateProjectMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'project_role' => ['required', Rule::in(['admin', 'member', 'client'])],
         ];
     }
 }

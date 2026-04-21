@@ -75,20 +75,20 @@ class DatabaseSeeder extends Seeder
             // ── Project members ───────────────────────────────────────────────
 
             // Creator is always project admin
-            $project->members()->attach($creator->id, ['project_role' => 'admin']);
+            $project->members()->attach($creator->id);
 
             // Add 3–4 random members
             $members->random(rand(3, 4))->each(function ($member) use ($project) {
-                $project->members()->attach($member->id, ['project_role' => 'member']);
+                $project->members()->attach($member->id);
             });
 
             // Add 1 client per project
             $client = $clients->get($i % $clients->count());
-            $project->members()->attach($client->id, ['project_role' => 'client']);
+            $project->members()->attach($client->id);
 
             // ── Tasks (10–20 per project) ─────────────────────────────────────
 
-            $projectMembers = $project->members()->wherePivot('project_role', '!=', 'client')->get();
+            $projectMembers = $project->members()->where('role', '!=', 'client')->get();
             $taskCount = rand(10, 20);
 
             for ($t = 0; $t < $taskCount; $t++) {
