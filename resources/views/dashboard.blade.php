@@ -8,7 +8,7 @@
     </div>
 
     {{-- Stats row --}}
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white rounded-xl border border-gray-200 p-5">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Overdue</p>
             <p class="text-3xl font-bold text-red-600 mt-1">{{ $overdue->count() }}</p>

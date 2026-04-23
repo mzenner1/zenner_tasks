@@ -2,19 +2,19 @@
 <div class="space-y-5">
 
     {{-- Header --}}
-    <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <span class="w-3 h-3 rounded-full" style="background-color: {{ $project->color ?? '#6366f1' }}"></span>
-            <h1 class="text-2xl font-bold text-gray-900">{{ $project->name }}</h1>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: {{ $project->color ?? '#6366f1' }}"></span>
+            <h1 class="text-2xl font-bold text-gray-900 truncate">{{ $project->name }}</h1>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
             <a href="{{ request()->fullUrlWithQuery(['view' => 'list']) }}"
                class="px-3 py-1.5 text-xs rounded-lg border transition
                       {{ request('view', 'list') === 'list' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400' }}">
                 ☰ List
             </a>
             <a href="{{ request()->fullUrlWithQuery(['view' => 'board']) }}"
-               class="px-3 py-1.5 text-xs rounded-lg border transition
+               class="hidden lg:inline px-3 py-1.5 text-xs rounded-lg border transition
                       {{ request('view') === 'board' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400' }}">
                 ⊞ Board
             </a>
@@ -40,11 +40,11 @@
 
             <input type="hidden" name="view" value="{{ request('view', 'list') }}">
 
-            <div class="flex flex-wrap items-center gap-3 p-3">
+            <div class="flex flex-wrap items-center gap-2 p-3">
 
                 {{-- Search --}}
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Search tasks…"
-                       class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48">
+                       class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-48">
 
                 {{-- Status multi-select --}}
                 <div class="relative" x-data>
@@ -133,25 +133,19 @@
                     </div>
                 </div>
 
-                {{-- Divider --}}
-                @if(request('view', 'list') === 'list')
-                <span class="h-5 w-px bg-gray-200"></span>
-
                 {{-- Sort (list view only) --}}
-                <div class="flex items-center gap-2">
-                    <label for="sort-select" class="text-sm text-gray-500 whitespace-nowrap">Sort by:</label>
-                    <select id="sort-select" name="sort"
-                            onchange="document.getElementById('filter-form').submit()"
-                            class="border border-gray-300 rounded-lg px-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 min-w-[200px]">
-                        <option value="updated"      {{ ($activeSort ?? 'updated') === 'updated'      ? 'selected' : '' }}>Recently Updated</option>
-                        <option value="updated_last" {{ ($activeSort ?? '') === 'updated_last'        ? 'selected' : '' }}>Least Recently Updated</option>
-                        <option value="created"      {{ ($activeSort ?? '') === 'created'             ? 'selected' : '' }}>Newest First</option>
-                        <option value="created_last" {{ ($activeSort ?? '') === 'created_last'        ? 'selected' : '' }}>Oldest First</option>
-                        <option value="title"        {{ ($activeSort ?? '') === 'title'               ? 'selected' : '' }}>Title (A–Z)</option>
-                        <option value="priority"     {{ ($activeSort ?? '') === 'priority'            ? 'selected' : '' }}>Priority (Urgent → Low)</option>
-                        <option value="due_date"     {{ ($activeSort ?? '') === 'due_date'            ? 'selected' : '' }}>Due Date</option>
-                    </select>
-                </div>
+                @if(request('view', 'list') === 'list')
+                <select name="sort"
+                        onchange="document.getElementById('filter-form').submit()"
+                        class="border border-gray-300 rounded-lg px-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto">
+                    <option value="updated"      {{ ($activeSort ?? 'updated') === 'updated'      ? 'selected' : '' }}>Recently Updated</option>
+                    <option value="updated_last" {{ ($activeSort ?? '') === 'updated_last'        ? 'selected' : '' }}>Least Recently Updated</option>
+                    <option value="created"      {{ ($activeSort ?? '') === 'created'             ? 'selected' : '' }}>Newest First</option>
+                    <option value="created_last" {{ ($activeSort ?? '') === 'created_last'        ? 'selected' : '' }}>Oldest First</option>
+                    <option value="title"        {{ ($activeSort ?? '') === 'title'               ? 'selected' : '' }}>Title (A–Z)</option>
+                    <option value="priority"     {{ ($activeSort ?? '') === 'priority'            ? 'selected' : '' }}>Priority (Urgent → Low)</option>
+                    <option value="due_date"     {{ ($activeSort ?? '') === 'due_date'            ? 'selected' : '' }}>Due Date</option>
+                </select>
                 @endif
 
                 {{-- Spacer --}}
@@ -177,17 +171,62 @@
         </form>
     </div>
 
-    {{-- Task List --}}
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        {{-- Count bar --}}
-        <div class="flex items-center px-5 py-2.5 border-b border-gray-100 bg-gray-50 text-sm text-gray-500">
-            @if($filteredTaskCount === $totalTaskCount)
-                <span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}
-            @else
-                <span class="font-medium text-indigo-600">{{ $filteredTaskCount }}</span>&nbsp;of&nbsp;<span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}<span class="ml-1.5 text-gray-400">— filtered</span>
-            @endif
+    {{-- Task count bar --}}
+    <div class="bg-white rounded-t-xl border border-gray-200 border-b-0 px-5 py-2.5 text-sm text-gray-500">
+        @if($filteredTaskCount === $totalTaskCount)
+            <span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}
+        @else
+            <span class="font-medium text-indigo-600">{{ $filteredTaskCount }}</span>&nbsp;of&nbsp;<span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}<span class="ml-1.5 text-gray-400">— filtered</span>
+        @endif
+    </div>
+
+    {{-- Task List — mobile cards --}}
+    <div class="bg-white rounded-b-xl border border-gray-200 overflow-hidden -mt-px">
+
+        {{-- Mobile card list (hidden on sm+) --}}
+        <div class="divide-y divide-gray-100 sm:hidden">
+            @forelse($tasks as $task)
+            @php $pColors = ['low'=>'bg-gray-100 text-gray-600','normal'=>'bg-blue-100 text-blue-700','high'=>'bg-orange-100 text-orange-700','urgent'=>'bg-red-100 text-red-700']; @endphp
+            <a href="{{ route('projects.tasks.show', [$project, $task]) }}"
+               class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition">
+                {{-- Priority stripe --}}
+                <div class="w-1 self-stretch rounded-full flex-shrink-0 mt-0.5
+                    {{ $task->priority === 'urgent' ? 'bg-red-500' : ($task->priority === 'high' ? 'bg-orange-400' : ($task->priority === 'normal' ? 'bg-blue-400' : 'bg-gray-300')) }}">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-mono text-indigo-500 font-semibold text-xs flex-shrink-0">{{ $task->task_number_label }}</span>
+                        <span class="text-sm font-medium text-gray-900 truncate">{{ $task->title }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                              style="background-color: {{ $task->status->color }}">
+                            {{ $task->status->name }}
+                        </span>
+                        <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium {{ $pColors[$task->priority] ?? '' }}">{{ ucfirst($task->priority) }}</span>
+                        @if($task->due_date)
+                        <span class="text-xs {{ $task->due_date->isPast() ? 'text-red-600 font-semibold' : 'text-gray-400' }}">
+                            {{ $task->due_date->format('M j') }}
+                        </span>
+                        @endif
+                    </div>
+                </div>
+                {{-- Assignees --}}
+                <div class="flex -space-x-1 flex-shrink-0 mt-0.5">
+                    @foreach($task->assignees->take(3) as $a)
+                    <div class="w-6 h-6 rounded-full bg-indigo-400 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white" title="{{ $a->name }}">
+                        {{ strtoupper(substr($a->name,0,1)) }}
+                    </div>
+                    @endforeach
+                </div>
+            </a>
+            @empty
+            <div class="px-5 py-10 text-center text-gray-400 text-sm">No tasks found.</div>
+            @endforelse
         </div>
-        <table class="w-full text-sm">
+
+        {{-- Desktop table (hidden below sm) --}}
+        <table class="hidden sm:table w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-5 py-3 font-semibold text-gray-600 w-full">Task</th>

@@ -14,8 +14,34 @@
 <body class="font-sans antialiased bg-gray-50 text-gray-900">
 <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
 
+    {{-- ── Mobile backdrop ─────────────────────────────────────────── --}}
+    <div
+        x-show="sidebarOpen"
+        x-transition:enter="transition-opacity ease-linear duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity ease-linear duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @click="sidebarOpen = false"
+        class="fixed inset-0 z-20 bg-black/60 lg:hidden"
+        style="display:none"
+    ></div>
+
     {{-- ── Sidebar ─────────────────────────────────────────────────── --}}
-    <aside class="flex flex-col w-64 bg-gray-900 text-gray-100 flex-shrink-0 overflow-y-auto">
+    <aside
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+        class="fixed inset-y-0 left-0 z-30 flex flex-col w-64 bg-gray-900 text-gray-100 flex-shrink-0 overflow-y-auto transform transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0 lg:z-auto">
+
+        {{-- Mobile close button --}}
+        <button
+            @click="sidebarOpen = false"
+            class="absolute top-3 right-3 text-gray-400 hover:text-white lg:hidden"
+            aria-label="Close menu">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
 
         {{-- Logo --}}
         <div class="flex flex-col px-5 py-5 border-b border-gray-700 gap-1">
@@ -62,7 +88,7 @@
 
                 <a href="{{ route('projects.index') }}"
                    class="flex items-center gap-2 px-3 py-1.5 mt-1 rounded-lg text-xs text-gray-500 hover:text-gray-300 transition">
-                    All projects →
+                    All projects &rarr;
                 </a>
             </div>
         </nav>
@@ -109,7 +135,18 @@
     </aside>
 
     {{-- ── Main content ─────────────────────────────────────────────── --}}
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+
+        {{-- ── Mobile top bar ──────────────────────────────────────── --}}
+        <header class="flex items-center gap-3 px-4 py-3 bg-gray-900 text-white lg:hidden flex-shrink-0">
+            <button @click="sidebarOpen = true" aria-label="Open menu" class="text-gray-300 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <img src="{{ asset('images/site-logo-2.png') }}" alt="Zenner Tasks" class="h-5 w-auto">
+            <span class="font-semibold text-sm tracking-tight">Zenner Tasks</span>
+        </header>
 
         {{-- Flash messages --}}
         @if(session('success') || session('error'))
@@ -118,14 +155,14 @@
             <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
                  class="flex items-center justify-between bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
                 <span>{{ session('success') }}</span>
-                <button @click="show = false" class="text-green-600 hover:text-green-800 ml-4">✕</button>
+                <button @click="show = false" class="text-green-600 hover:text-green-800 ml-4">&#x2715;</button>
             </div>
             @endif
             @if(session('error'))
             <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
                  class="flex items-center justify-between bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
                 <span>{{ session('error') }}</span>
-                <button @click="show = false" class="text-red-600 hover:text-red-800 ml-4">✕</button>
+                <button @click="show = false" class="text-red-600 hover:text-red-800 ml-4">&#x2715;</button>
             </div>
             @endif
         </div>

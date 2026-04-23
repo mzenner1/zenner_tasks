@@ -1,14 +1,34 @@
 <x-app-layout :title="$task->task_number_label . ' – ' . $task->title">
-<div class="max-w-5xl space-y-6">
+<div class="max-w-5xl space-y-6" x-data="{ detailsOpen: false }">
 
     {{-- Breadcrumb --}}
-    <div class="flex items-center gap-2 text-sm text-gray-500">
-        <a href="{{ route('projects.show', $project) }}" class="hover:text-indigo-600">{{ $project->name }}</a>
-        <span>/</span>
-        <span class="font-mono text-indigo-500 font-semibold">{{ $task->task_number_label }}</span>
-        <span>/</span>
-        <span class="text-gray-800 font-medium truncate">{{ $task->title }}</span>
+    <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 text-sm text-gray-500 min-w-0">
+            <a href="{{ route('projects.show', $project) }}" class="hover:text-indigo-600 flex-shrink-0">{{ $project->name }}</a>
+            <span class="flex-shrink-0">/</span>
+            <span class="font-mono text-indigo-500 font-semibold flex-shrink-0">{{ $task->task_number_label }}</span>
+            <span class="flex-shrink-0">/</span>
+            <span class="text-gray-800 font-medium truncate">{{ $task->title }}</span>
+        </div>
+        {{-- Details toggle — visible below lg only --}}
+        <button @click="detailsOpen = true"
+                class="lg:hidden flex-shrink-0 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
+            Details
+        </button>
     </div>
+
+    {{-- Right panel backdrop --}}
+    <div x-show="detailsOpen"
+         x-transition:enter="transition-opacity ease-linear duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-linear duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="detailsOpen = false"
+         class="fixed inset-0 z-20 bg-black/60 lg:hidden"
+         style="display:none"></div>
 
     <div class="flex gap-6">
 
@@ -32,7 +52,6 @@
             @if($task->attachments->count())
             <div class="bg-white rounded-xl border border-gray-200 p-4">
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">Attachments</h3>
-                {{-- Image previews --}}
                 @php $images = $task->attachments->filter->isImage(); $files = $task->attachments->reject->isImage(); @endphp
                 @if($images->count())
                 <div class="flex flex-wrap gap-2 mb-3">
@@ -55,7 +74,6 @@
                     @endforeach
                 </div>
                 @endif
-                {{-- Non-image files --}}
                 @if($files->count())
                 <div class="space-y-2">
                     @foreach($files as $attachment)
@@ -108,7 +126,6 @@
                 <p class="text-sm text-gray-400">No comments yet. Be the first to comment.</p>
                 @endforelse
 
-                {{-- New comment form --}}
                 @can('create', App\Models\Comment::class)
                 <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
                     <form method="POST" action="{{ route('comments.store', $task) }}"
@@ -125,7 +142,7 @@
                             <input type="file" name="attachments[]" multiple
                                    class="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:font-medium hover:file:bg-indigo-100">
                         </div>
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             @php $role = auth()->user()->projectRole($project->id); @endphp
                             @if($role !== 'client')
                             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
@@ -163,7 +180,20 @@
         </div>
 
         {{-- ── Right: task meta sidebar ────────────────────────────── --}}
-        <div class="w-64 flex-shrink-0 space-y-4">
+        {{-- Fixed flyout on < lg, static column on lg+ --}}
+        <div :class="detailsOpen ? 'translate-x-0' : 'translate-x-full'"
+             class="fixed inset-y-0 right-0 z-30 w-72 bg-gray-50 border-l border-gray-200 overflow-y-auto
+                    transform transition-transform duration-200 ease-in-out
+                    lg:relative lg:inset-auto lg:z-auto lg:translate-x-0 lg:w-64 lg:bg-transparent lg:border-0
+                    flex-shrink-0 space-y-4 p-4 lg:p-0">
+
+            {{-- Close button (mobile/tablet only) --}}
+            <div class="flex items-center justify-between mb-2 lg:hidden">
+                <span class="text-sm font-semibold text-gray-700">Task Details</span>
+                <button @click="detailsOpen = false" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
 
             {{-- Status --}}
             <div class="bg-white rounded-xl border border-gray-200 p-4">

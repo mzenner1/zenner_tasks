@@ -7,7 +7,7 @@
         <a href="{{ route('projects.create') }}"
            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            New Project
+            <span class="hidden sm:inline">New Project</span>
         </a>
         @endcan
     </div>
@@ -18,13 +18,13 @@
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         @foreach($active as $project)
         <a href="{{ route('projects.show', $project) }}"
-           class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-indigo-200 transition group">
-            <div class="flex items-start justify-between">
-                <div class="flex items-center gap-3">
+           class="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 hover:shadow-md hover:border-indigo-200 transition group">
+            <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-3 min-w-0">
                     <span class="w-3 h-3 rounded-full flex-shrink-0 mt-0.5" style="background-color: {{ $project->color ?? '#6366f1' }}"></span>
-                    <h2 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition">{{ $project->name }}</h2>
+                    <h2 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">{{ $project->name }}</h2>
                 </div>
-                <span class="text-xs text-gray-400">{{ $project->tasks_count }} tasks</span>
+                <span class="text-xs text-gray-400 flex-shrink-0">{{ $project->tasks_count }} tasks</span>
             </div>
             @if($project->description)
             <p class="text-sm text-gray-500 mt-2 ml-6 line-clamp-2">{{ $project->description }}</p>

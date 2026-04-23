@@ -1,4 +1,4 @@
-<div class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition">
+<div class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
     {{-- Priority indicator --}}
     <div class="w-1 self-stretch rounded-full flex-shrink-0
         {{ $task->priority === 'urgent' ? 'bg-red-500' : ($task->priority === 'high' ? 'bg-orange-400' : ($task->priority === 'normal' ? 'bg-blue-400' : 'bg-gray-300')) }}">
@@ -14,16 +14,29 @@
             <span class="text-xs text-gray-400 font-mono flex-shrink-0">{{ $task->task_number_label }}</span>
         </div>
         <span class="text-xs text-gray-400">{{ $task->project->name }}</span>
+
+        {{-- Mobile-only meta row --}}
+        <div class="flex items-center gap-2 mt-1 sm:hidden">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                  style="background-color: {{ $task->status->color }}">
+                {{ $task->status->name }}
+            </span>
+            @if($task->due_date)
+            <span class="text-xs {{ $task->due_date->isPast() ? 'text-red-600 font-semibold' : 'text-gray-500' }}">
+                {{ $task->due_date->format('M j') }}
+            </span>
+            @endif
+        </div>
     </div>
 
-    {{-- Status badge --}}
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-white flex-shrink-0"
+    {{-- Status badge — hidden on mobile --}}
+    <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-white flex-shrink-0"
           style="background-color: {{ $task->status->color }}">
         {{ $task->status->name }}
     </span>
 
-    {{-- Assignee avatars --}}
-    <div class="flex -space-x-1 flex-shrink-0">
+    {{-- Assignee avatars — hidden on mobile --}}
+    <div class="hidden sm:flex -space-x-1 flex-shrink-0">
         @foreach($task->assignees->take(3) as $assignee)
         <div class="w-6 h-6 rounded-full bg-indigo-400 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white"
              title="{{ $assignee->name }}">
@@ -32,9 +45,9 @@
         @endforeach
     </div>
 
-    {{-- Due date --}}
+    {{-- Due date — hidden on mobile --}}
     @if($task->due_date)
-    <span class="text-xs flex-shrink-0 {{ $task->due_date->isPast() ? 'text-red-600 font-semibold' : 'text-gray-500' }}">
+    <span class="hidden sm:block text-xs flex-shrink-0 {{ $task->due_date->isPast() ? 'text-red-600 font-semibold' : 'text-gray-500' }}">
         {{ $task->due_date->format('M j') }}
     </span>
     @endif
