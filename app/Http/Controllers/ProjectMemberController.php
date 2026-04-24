@@ -6,6 +6,7 @@ use App\Events\UserInvited;
 use App\Models\Project;
 use App\Models\User;
 use App\Http\Requests\StoreProjectMemberRequest;
+use App\Notifications\ProjectInvitationNotification;
 
 class ProjectMemberController extends Controller
 {
@@ -53,12 +54,18 @@ class ProjectMemberController extends Controller
 
         $project->members()->attach($user->id);
 
-        UserInvited::dispatch($user, $project, auth()->user());
+        if ($isNewUser) {
+            // New user — fire the full welcome + set-password invitation email
+            UserInvited::dispatch($user, $project, auth()->user());
+        } else {
+            // Existing user — send a lighter "you've been added to a project" notification
+            $user->notify(new ProjectInvitationNotification($project, auth()->user()));
+        }
 
         return redirect()->route('projects.members.index', $project)
             ->with('success', $isNewUser
-                ? "{$user->name} was invited and added to the project."
-                : "{$user->name} added to the project.");
+                ? "{$user->name} was invited by email and added to the project."
+                : "{$user->name} was added to the project and notified by email.");
     }
 
     public function destroy(Project $project, User $user)

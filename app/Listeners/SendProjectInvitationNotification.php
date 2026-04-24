@@ -4,9 +4,8 @@ namespace App\Listeners;
 
 use App\Events\UserInvited;
 use App\Notifications\ProjectInvitationNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendProjectInvitationNotification implements ShouldQueue
+class SendProjectInvitationNotification
 {
     public function handle(UserInvited $event): void
     {
