@@ -5,9 +5,8 @@ namespace App\Listeners;
 use App\Events\TaskUpdated;
 use App\Notifications\TaskStatusChangedNotification;
 use App\Models\Status;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendTaskStatusChangedNotification implements ShouldQueue
+class SendTaskStatusChangedNotification
 {
     public function handle(TaskUpdated $event): void
     {

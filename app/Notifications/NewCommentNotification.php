@@ -3,14 +3,11 @@
 namespace App\Notifications;
 
 use App\Models\Comment;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewCommentNotification extends Notification implements ShouldQueue
+class NewCommentNotification extends Notification
 {
-    use Queueable;
 
     public function __construct(
         public readonly Comment $comment
@@ -30,7 +27,7 @@ class NewCommentNotification extends Notification implements ShouldQueue
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line($this->comment->author->name . ' commented on a task you are following.')
             ->line('**' . $task->title . '**')
-            ->line('> ' . \Illuminate\Support\Str::limit($this->comment->body, 200))
+            ->line(\Illuminate\Support\Str::limit($this->comment->body, 200))
             ->action('View Task', url(route('projects.tasks.show', [$task->project_id, $task])))
             ->line('Thank you for using Zenner Tasks!');
     }

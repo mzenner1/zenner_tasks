@@ -4,9 +4,8 @@ namespace App\Listeners;
 
 use App\Events\TaskCreated;
 use App\Notifications\TaskAssignedNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendTaskAssignedNotification implements ShouldQueue
+class SendTaskAssignedNotification
 {
     public function handle(TaskCreated $event): void
     {

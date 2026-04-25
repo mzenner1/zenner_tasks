@@ -2,14 +2,6 @@
 
 namespace App\Providers;
 
-use App\Events\CommentPosted;
-use App\Events\TaskCreated;
-use App\Events\TaskUpdated;
-use App\Events\UserInvited;
-use App\Listeners\SendNewCommentNotification;
-use App\Listeners\SendProjectInvitationNotification;
-use App\Listeners\SendTaskAssignedNotification;
-use App\Listeners\SendTaskStatusChangedNotification;
 use App\Models\Attachment;
 use App\Models\Comment;
 use App\Models\Project;
@@ -18,7 +10,6 @@ use App\Policies\AttachmentPolicy;
 use App\Policies\CommentPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\TaskPolicy;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -45,9 +36,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // ── Events & Listeners ────────────────────────────────────────────────
-        Event::listen(TaskCreated::class,   SendTaskAssignedNotification::class);
-        Event::listen(TaskUpdated::class,   SendTaskStatusChangedNotification::class);
-        Event::listen(CommentPosted::class, SendNewCommentNotification::class);
-        Event::listen(UserInvited::class,   SendProjectInvitationNotification::class);
+        // Listeners are auto-discovered from app/Listeners — no manual
+        // Event::listen() calls needed.
     }
 }
