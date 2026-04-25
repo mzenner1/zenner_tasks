@@ -77,6 +77,21 @@ class Task extends Model
         return $this->belongsToMany(User::class, 'task_assignees');
     }
 
+    public function watchers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'task_watchers')->withTimestamps();
+    }
+
+    /**
+     * Add a user as a watcher (idempotent).
+     */
+    public function addWatcher(string $userId): void
+    {
+        if (!$this->watchers()->where('user_id', $userId)->exists()) {
+            $this->watchers()->attach($userId);
+        }
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class)->orderBy('created_at');

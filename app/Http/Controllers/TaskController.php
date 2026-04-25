@@ -102,7 +102,8 @@ class TaskController extends Controller
 
         $user = auth()->user();
 
-        $task->load(['assignees', 'status', 'creator', 'attachments.uploader', 'activityLog.user']);
+        $task->load(['assignees', 'status', 'creator', 'attachments.uploader', 'activityLog.user', 'watchers']);
+        $isWatching = $task->watchers->contains('id', $user->id);
 
         
         $descriptionHtml = $task->description
@@ -121,7 +122,7 @@ class TaskController extends Controller
 
         return view('tasks.show', compact(
             'project', 'task', 'comments', 'statuses',
-            'members', 'descriptionHtml', 'activityLog'
+            'members', 'descriptionHtml', 'activityLog', 'isWatching'
         ));
     }
 
@@ -194,6 +195,9 @@ class TaskController extends Controller
 
         $task->save();
         $task->update(['last_activity_at' => now()]);
+
+        // Auto-watch: anyone who interacts with a task becomes a watcher
+        $task->addWatcher(auth()->id());
 
         // Sync assignees if provided
         if ($hasAssignees) {

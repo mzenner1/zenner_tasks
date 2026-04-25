@@ -39,6 +39,9 @@ class CommentController extends Controller
         // Touch task's last_activity_at so it surfaces in 'updated' sort
         $task->update(['last_activity_at' => now()]);
 
+        // Auto-watch: commenter becomes a watcher
+        $task->addWatcher(auth()->id());
+
         // Save any uploaded attachments
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {

@@ -277,6 +277,39 @@
                 <div>Updated {{ $task->updated_at->diffForHumans() }}</div>
             </div>
 
+            {{-- Watch / Unwatch --}}
+            <div class="bg-white rounded-xl border border-gray-200 p-4">
+                @if($isWatching)
+                <form method="POST" action="{{ route('tasks.unwatch', $task) }}">
+                    @csrf @method('DELETE')
+                    <button type="submit"
+                            class="flex items-center gap-2 w-full text-sm font-medium text-indigo-600 hover:text-indigo-800 transition group">
+                        <span class="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-100 group-hover:bg-indigo-200 transition flex-shrink-0">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        </span>
+                        <div class="text-left leading-tight">
+                            <div>Watching</div>
+                            <div class="text-xs text-indigo-400 font-normal group-hover:text-indigo-600">Click to unwatch</div>
+                        </div>
+                    </button>
+                </form>
+                @else
+                <form method="POST" action="{{ route('tasks.watch', $task) }}">
+                    @csrf
+                    <button type="submit"
+                            class="flex items-center gap-2 w-full text-sm font-medium text-gray-500 hover:text-indigo-600 transition group">
+                        <span class="flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 group-hover:bg-indigo-100 transition flex-shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </span>
+                        <div class="text-left leading-tight">
+                            <div>Watch</div>
+                            <div class="text-xs text-gray-400 font-normal group-hover:text-indigo-400">Get email notifications</div>
+                        </div>
+                    </button>
+                </form>
+                @endif
+            </div>
+
             {{-- Actions --}}
             <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
                 @can('update', $task)

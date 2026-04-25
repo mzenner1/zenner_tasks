@@ -12,8 +12,9 @@ class SendNewCommentNotification
         $comment = $event->comment;
         $task    = $comment->task;
 
-        // Only notify assignees, excluding the person who posted the comment
-        $recipients = $task->assignees
+        $task->load('watchers');
+
+        $recipients = $task->watchers
             ->unique('id')
             ->reject(fn ($user) => $user->id === $comment->user_id);
 

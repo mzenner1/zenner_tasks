@@ -10,6 +10,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskWatcherController;
 use Illuminate\Support\Facades\Route;
 
 // Auth (Breeze generated)
@@ -64,6 +65,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Kanban drag-drop move (task only — no project param needed, task carries project context)
     Route::post('tasks/{task}/move', [TaskController::class, 'move'])->name('tasks.move');
+
+    // Watch / Unwatch
+    Route::post('tasks/{task}/watch',   [TaskWatcherController::class, 'store'])->name('tasks.watch');
+    Route::delete('tasks/{task}/watch', [TaskWatcherController::class, 'destroy'])->name('tasks.unwatch');
 
     // Comments
     Route::post('tasks/{task}/comments',    [CommentController::class, 'store'])->name('comments.store');

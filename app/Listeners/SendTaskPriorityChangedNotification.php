@@ -15,11 +15,13 @@ class SendTaskPriorityChangedNotification
 
         [$fromPriority, $toPriority] = $event->changes['priority'];
 
-        foreach ($event->task->assignees as $assignee) {
-            if ($assignee->id === $event->actedBy) {
+        $event->task->load('watchers');
+
+        foreach ($event->task->watchers as $watcher) {
+            if ($watcher->id === $event->actedBy) {
                 continue;
             }
-            $assignee->notify(new TaskPriorityChangedNotification($event->task, $fromPriority, $toPriority));
+            $watcher->notify(new TaskPriorityChangedNotification($event->task, $fromPriority, $toPriority));
         }
     }
 }

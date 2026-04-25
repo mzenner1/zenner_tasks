@@ -19,11 +19,13 @@ class SendTaskDueDateChangedNotification
         $fromDate = $fromRaw ? Carbon::parse($fromRaw) : null;
         $toDate   = $toRaw   ? Carbon::parse($toRaw)   : null;
 
-        foreach ($event->task->assignees as $assignee) {
-            if ($assignee->id === $event->actedBy) {
+        $event->task->load('watchers');
+
+        foreach ($event->task->watchers as $watcher) {
+            if ($watcher->id === $event->actedBy) {
                 continue;
             }
-            $assignee->notify(new TaskDueDateChangedNotification($event->task, $fromDate, $toDate));
+            $watcher->notify(new TaskDueDateChangedNotification($event->task, $fromDate, $toDate));
         }
     }
 }
