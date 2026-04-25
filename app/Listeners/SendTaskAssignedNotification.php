@@ -10,10 +10,11 @@ class SendTaskAssignedNotification
     public function handle(TaskCreated $event): void
     {
         foreach ($event->task->assignees as $assignee) {
-            // Don't notify the person who created and assigned to themselves
-            if ($assignee->id !== $event->task->created_by) {
-                $assignee->notify(new TaskAssignedNotification($event->task));
+            // Don't notify the person who created and assigned the task
+            if ($assignee->id === $event->task->created_by) {
+                continue;
             }
+            $assignee->notify(new TaskAssignedNotification($event->task));
         }
     }
 }

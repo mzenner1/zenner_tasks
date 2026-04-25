@@ -3,14 +3,13 @@
 namespace App\Listeners;
 
 use App\Events\TaskUpdated;
-use App\Notifications\TaskStatusChangedNotification;
 use App\Models\Status;
+use App\Notifications\TaskStatusChangedNotification;
 
 class SendTaskStatusChangedNotification
 {
     public function handle(TaskUpdated $event): void
     {
-        // Only fire if status actually changed
         if (!isset($event->changes['status_id'])) {
             return;
         }
@@ -21,6 +20,9 @@ class SendTaskStatusChangedNotification
         $toStatus   = Status::find($newId)?->name ?? 'Unknown';
 
         foreach ($event->task->assignees as $assignee) {
+            if ($assignee->id === $event->actedBy) {
+                continue;
+            }
             $assignee->notify(new TaskStatusChangedNotification($event->task, $fromStatus, $toStatus));
         }
     }

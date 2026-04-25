@@ -16,6 +16,9 @@ class SendTaskPriorityChangedNotification
         [$fromPriority, $toPriority] = $event->changes['priority'];
 
         foreach ($event->task->assignees as $assignee) {
+            if ($assignee->id === $event->actedBy) {
+                continue;
+            }
             $assignee->notify(new TaskPriorityChangedNotification($event->task, $fromPriority, $toPriority));
         }
     }

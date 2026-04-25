@@ -226,7 +226,7 @@ class TaskController extends Controller
         // Fire TaskUpdated event → notifies assignees of relevant changes
         if (!empty($eventChanges)) {
             $task->load('assignees', 'project');
-            TaskUpdated::dispatch($task, $eventChanges);
+            TaskUpdated::dispatch($task, $eventChanges, auth()->id());
         }
 
         return redirect()->route('projects.tasks.show', [$project, $task])
@@ -265,7 +265,7 @@ class TaskController extends Controller
 
         // Fire TaskUpdated event for status change via Kanban
         $task->load('assignees', 'project');
-        TaskUpdated::dispatch($task, ['status_id' => [$oldStatusId, $request->status_id]]);
+        TaskUpdated::dispatch($task, ['status_id' => [$oldStatusId, $request->status_id]], auth()->id());
 
         return response()->json(['success' => true]);
     }
