@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use League\CommonMark\CommonMarkConverter;
+use App\Support\MarkdownConverter;
 
 class Comment extends Model
 {
@@ -61,14 +61,7 @@ class Comment extends Model
      */
     public function bodyHtml(): string
     {
-        static $converter;
-        $converter ??= new CommonMarkConverter([
-            'html_input'         => 'strip',
-            'allow_unsafe_links' => false,
-            'renderer'           => ['soft_break' => "<br />\n"],
-        ]);
-
-        return $converter->convert($this->body)->getContent();
+        return MarkdownConverter::toHtml($this->body);
     }
 
     // ─── Scopes ───────────────────────────────────────────────────────────────

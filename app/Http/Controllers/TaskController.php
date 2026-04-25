@@ -11,7 +11,7 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Requests\MoveTaskRequest;
 use Illuminate\Http\Request;
-use League\CommonMark\CommonMarkConverter;
+use App\Support\MarkdownConverter;
 
 class TaskController extends Controller
 {
@@ -104,9 +104,9 @@ class TaskController extends Controller
 
         $task->load(['assignees', 'status', 'creator', 'attachments.uploader', 'activityLog.user']);
 
-        $converter = new CommonMarkConverter(['html_input' => 'strip', 'allow_unsafe_links' => false, 'renderer' => ['soft_break' => "<br />\n"]]);
+        
         $descriptionHtml = $task->description
-            ? $converter->convert($task->description)->getContent()
+            ? MarkdownConverter::toHtml($task->description)
             : null;
 
         $comments = $task->comments()
