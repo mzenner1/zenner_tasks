@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\AdminInviteNotification;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -37,9 +38,35 @@ class UserController extends Controller
 
         $user->update($validated);
 
-
         return redirect()->route('admin.users.show', $user)
             ->with('success', 'User updated.');
+    }
+
+    public function invite(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'role'  => ['required', Rule::in(['super_admin', 'admin', 'member', 'client'])],
+        ]);
+
+        $user = User::create([
+            'name'       => explode('@', $request->email)[0],
+            'email'      => $request->email,
+            'password'   => null,
+            'role'       => $request->role,
+            'invited_by' => auth()->id(),
+        ]);
+
+        $token = Password::broker()->createToken($user);
+        $setPasswordUrl = route('password.reset', [
+            'token' => $token,
+            'email' => $user->email,
+        ]);
+
+        $user->notify(new AdminInviteNotification(auth()->user(), $request->role, $setPasswordUrl));
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "{$user->name} was invited and will receive an email to set their password.");
     }
 
     public function destroy(User $user)

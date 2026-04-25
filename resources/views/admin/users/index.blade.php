@@ -5,6 +5,47 @@
         <span class="text-sm text-gray-500">{{ $users->total() }} total</span>
     </div>
 
+    {{-- ── Invite User Form ─────────────────────────────────────────── --}}
+    <div class="bg-white rounded-xl border border-gray-200 p-5" x-data="{ open: {{ $errors->any() ? 'true' : 'false' }} }">
+        <button @click="open = !open"
+                class="flex items-center gap-2 text-sm font-semibold text-purple-600 hover:text-purple-800 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span x-text="open ? 'Cancel' : 'Invite New User'"></span>
+        </button>
+
+        <div x-show="open" x-transition class="mt-4 pt-4 border-t border-gray-100">
+            <form method="POST" action="{{ route('admin.users.invite') }}" class="flex flex-wrap items-end gap-3">
+                @csrf
+                <div class="flex-1 min-w-48">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Email Address</label>
+                    <input type="email" name="email" value="{{ old('email') }}" required
+                           placeholder="user@example.com"
+                           class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:ring-purple-500 focus:border-purple-500" />
+                    @error('email')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="w-44">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Role</label>
+                    <select name="role" required
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                        <option value="client"      {{ old('role', 'client') === 'client'      ? 'selected' : '' }}>Client</option>
+                        <option value="member"      {{ old('role')           === 'member'      ? 'selected' : '' }}>Member</option>
+                        <option value="admin"       {{ old('role')           === 'admin'       ? 'selected' : '' }}>Admin</option>
+                        <option value="super_admin" {{ old('role')           === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                    </select>
+                </div>
+                <button type="submit"
+                        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition">
+                    Send Invitation
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {{-- ── Users Table ──────────────────────────────────────────────── --}}
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <table class="w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
@@ -21,24 +62,24 @@
                 <tr class="hover:bg-gray-50 transition">
                     <td class="px-5 py-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full bg-indigo-400 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                            <div class="w-7 h-7 rounded-full bg-purple-400 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
                             <a href="{{ route('admin.users.show', $user) }}"
-                               class="font-medium text-gray-900 hover:text-indigo-600">{{ $user->name }}</a>
+                               class="font-medium text-gray-900 hover:text-purple-600">{{ $user->name }}</a>
                         </div>
                     </td>
                     <td class="px-4 py-3 text-gray-500">{{ $user->email }}</td>
                     <td class="px-4 py-3">
                         @php $roleColors = ['super_admin'=>'bg-purple-100 text-purple-700','admin'=>'bg-indigo-100 text-indigo-700','member'=>'bg-blue-100 text-blue-700','client'=>'bg-gray-100 text-gray-600']; @endphp
                         <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium {{ $roleColors[$user->role] ?? '' }}">
-                            {{ ucfirst(str_replace('_',' ', $user->role)) }}
+                            {{ ucfirst(str_replace('_', ' ', $user->role)) }}
                         </span>
                     </td>
                     <td class="px-4 py-3 text-gray-400 text-xs">{{ $user->created_at->format('M j, Y') }}</td>
                     <td class="px-4 py-3 text-right">
                         <a href="{{ route('admin.users.edit', $user) }}"
-                           class="text-xs text-gray-400 hover:text-indigo-600 mr-3">Edit</a>
+                           class="text-xs text-gray-400 hover:text-purple-600 mr-3">Edit</a>
                         @if($user->id !== auth()->id())
                         <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="inline">
                             @csrf @method('DELETE')

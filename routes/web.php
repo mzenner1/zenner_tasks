@@ -87,6 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Admin-only
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin,admin')->group(function () {
+        Route::post('users/invite', [UserController::class, 'invite'])->name('users.invite');
         Route::resource('users', UserController::class)->except(['create', 'store']);
     });
 
