@@ -62,9 +62,7 @@
                 <tr class="hover:bg-gray-50 transition">
                     <td class="px-5 py-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full bg-purple-400 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
-                            </div>
+                            <x-user-avatar :user="$user" size="sm" />
                             <a href="{{ route('admin.users.show', $user) }}"
                                class="font-medium text-gray-900 hover:text-purple-600">{{ $user->name }}</a>
                         </div>

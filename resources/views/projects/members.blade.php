@@ -104,9 +104,7 @@
             $roleClass = $roleColors[$member->role] ?? 'bg-gray-100 text-gray-600';
         @endphp
         <div class="flex items-center gap-4 px-5 py-4">
-            <div class="w-9 h-9 rounded-full bg-indigo-400 flex items-center justify-center font-bold text-white flex-shrink-0">
-                {{ strtoupper(substr($member->name, 0, 1)) }}
-            </div>
+            <x-user-avatar :user="$member" size="md" />
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-gray-900">{{ $member->name }}</p>
                 <p class="text-xs text-gray-500">{{ $member->email }}</p>

@@ -31,10 +31,7 @@
             @endif
             <div class="flex items-center gap-2 mt-4 ml-6">
                 @foreach($project->members->take(5) as $member)
-                <div class="w-6 h-6 rounded-full bg-indigo-400 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white -ml-1 first:ml-0"
-                     title="{{ $member->name }}">
-                    {{ strtoupper(substr($member->name, 0, 1)) }}
-                </div>
+                <x-user-avatar :user="$member" size="sm" class="border-2 border-white -ml-1 first:ml-0" />
                 @endforeach
                 @if($project->members->count() > 5)
                 <span class="text-xs text-gray-400">+{{ $project->members->count() - 5 }}</span>

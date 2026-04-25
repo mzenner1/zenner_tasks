@@ -256,9 +256,7 @@
                             <input type="checkbox" name="assignees[]" value="{{ $member->id }}"
                                    {{ $task->assignees->contains($member->id) ? 'checked' : '' }}
                                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                            <div class="w-5 h-5 rounded-full bg-indigo-400 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
-                                {{ strtoupper(substr($member->name,0,1)) }}
-                            </div>
+                            <x-user-avatar :user="$member" size="xs" />
                             <span class="truncate">{{ $member->name }}</span>
                         </label>
                         @endforeach

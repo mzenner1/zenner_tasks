@@ -27,8 +27,7 @@
     @if($task->assignees->count())
     <div class="flex -space-x-1 mt-2">
         @foreach($task->assignees->take(4) as $a)
-        <div class="w-5 h-5 rounded-full bg-indigo-400 border border-white flex items-center justify-center text-[9px] font-bold text-white"
-             title="{{ $a->name }}">{{ strtoupper(substr($a->name,0,1)) }}</div>
+        <x-user-avatar :user="$a" size="xs" class="border border-white" />
         @endforeach
     </div>
     @endif

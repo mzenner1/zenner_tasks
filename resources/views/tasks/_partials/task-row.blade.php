@@ -38,10 +38,7 @@
     {{-- Assignee avatars — hidden on mobile --}}
     <div class="hidden sm:flex -space-x-1 flex-shrink-0">
         @foreach($task->assignees->take(3) as $assignee)
-        <div class="w-6 h-6 rounded-full bg-indigo-400 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white"
-             title="{{ $assignee->name }}">
-            {{ strtoupper(substr($assignee->name, 0, 1)) }}
-        </div>
+        <x-user-avatar :user="$assignee" size="sm" class="border-2 border-white" />
         @endforeach
     </div>
 

@@ -124,9 +124,7 @@
                             <input type="checkbox" name="assignees[]" value="{{ $member->id }}"
                                    {{ in_array($member->id, $filterAssignees) ? 'checked' : '' }}
                                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                            <div class="w-5 h-5 rounded-full bg-indigo-400 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
-                                {{ strtoupper(substr($member->name, 0, 1)) }}
-                            </div>
+                            <x-user-avatar :user="$member" size="sm" class="border-2 border-white" />
                             {{ $member->name }}
                         </label>
                         @endforeach
@@ -214,9 +212,7 @@
                 {{-- Assignees --}}
                 <div class="flex -space-x-1 flex-shrink-0 mt-0.5">
                     @foreach($task->assignees->take(3) as $a)
-                    <div class="w-6 h-6 rounded-full bg-indigo-400 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white" title="{{ $a->name }}">
-                        {{ strtoupper(substr($a->name,0,1)) }}
-                    </div>
+                    <x-user-avatar :user="$a" size="sm" class="border-2 border-white" />
                     @endforeach
                 </div>
             </a>
@@ -267,9 +263,7 @@
                     <td class="px-4 py-3">
                         <div class="flex -space-x-1">
                             @foreach($task->assignees->take(3) as $a)
-                            <div class="w-6 h-6 rounded-full bg-indigo-400 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white" title="{{ $a->name }}">
-                                {{ strtoupper(substr($a->name,0,1)) }}
-                            </div>
+                            <x-user-avatar :user="$a" size="sm" class="border-2 border-white" />
                             @endforeach
                         </div>
                     </td>

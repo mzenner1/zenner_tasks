@@ -8,9 +8,7 @@
 
     <div class="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
         <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-full bg-indigo-400 flex items-center justify-center text-2xl font-bold text-white">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
-            </div>
+            <x-user-avatar :user="$user" size="lg" />
             <div>
                 <h1 class="text-xl font-bold text-gray-900">{{ $user->name }}</h1>
                 <p class="text-sm text-gray-500">{{ $user->email }}</p>

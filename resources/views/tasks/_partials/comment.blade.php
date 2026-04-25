@@ -2,9 +2,7 @@
 <div class="rounded-xl border p-4 space-y-2 {{ $comment->is_internal ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-200' }}">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-indigo-400 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                {{ strtoupper(substr($comment->author->name, 0, 1)) }}
-            </div>
+            <x-user-avatar :user="$comment->author" size="sm" />
             <span class="text-sm font-medium text-gray-900">{{ $comment->author->name }}</span>
             <span class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
             @if($comment->is_internal)
