@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\UserInvited;
 use App\Models\Project;
 use App\Models\User;
 use App\Http\Requests\StoreProjectMemberRequest;
@@ -54,13 +53,8 @@ class ProjectMemberController extends Controller
 
         $project->members()->attach($user->id);
 
-        if ($isNewUser) {
-            // New user — fire the full welcome + set-password invitation email
-            UserInvited::dispatch($user, $project, auth()->user());
-        } else {
-            // Existing user — send a lighter "you've been added to a project" notification
-            $user->notify(new ProjectInvitationNotification($project, auth()->user()));
-        }
+        // Notify directly — no event dispatch to avoid duplicate emails
+        $user->notify(new ProjectInvitationNotification($project, auth()->user()));
 
         return redirect()->route('projects.members.index', $project)
             ->with('success', $isNewUser
