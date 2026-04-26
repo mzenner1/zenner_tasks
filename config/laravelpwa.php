@@ -5,7 +5,7 @@ return [
     'manifest' => [
         'name' => 'Zenner Tasks',
         'short_name' => 'Z Tasks',
-        'start_url' => '/dashboard',
+        'start_url' => '/',
         'background_color' => '#000000',
         'theme_color' => '#000000',
         'display' => 'standalone',
@@ -61,7 +61,7 @@ return [
             [
                 'name' => 'Dashboard',
                 'description' => 'Go to your dashboard',
-                'url' => '/dashboard',
+                'url' => '/',
                 'icons' => [
                     'src' => '/images/icons/icon-72x72.png',
                     'purpose' => 'any'
