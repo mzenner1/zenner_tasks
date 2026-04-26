@@ -14,8 +14,8 @@ public/hot
 public_html/storage
 public_html/hot
 
-public/images/*/*
-public/videos/*/*
+# public/images/*/*
+# public/videos/*/*
 /public/build
 *.map
 public/dist/*
