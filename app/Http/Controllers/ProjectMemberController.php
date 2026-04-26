@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\User;
 use App\Http\Requests\StoreProjectMemberRequest;
 use App\Notifications\ProjectInvitationNotification;
+use App\Notifications\ProjectAddedNotification;
 
 class ProjectMemberController extends Controller
 {
@@ -53,8 +54,11 @@ class ProjectMemberController extends Controller
 
         $project->members()->attach($user->id);
 
-        // Notify directly — no event dispatch to avoid duplicate emails
-        $user->notify(new ProjectInvitationNotification($project, auth()->user()));
+        if ($isNewUser) {
+            $user->notify(new ProjectInvitationNotification($project, auth()->user()));
+        } else {
+            $user->notify(new ProjectAddedNotification($project, auth()->user()));
+        }
 
         return redirect()->route('projects.members.index', $project)
             ->with('success', $isNewUser
