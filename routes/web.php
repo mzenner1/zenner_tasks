@@ -13,6 +13,9 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskWatcherController;
 use Illuminate\Support\Facades\Route;
 
+// PWA offline fallback
+Route::get('/offline', fn() => view('vendor.laravelpwa.offline'))->name('offline');
+
 // Auth (Breeze generated)
 require __DIR__.'/auth.php';
 

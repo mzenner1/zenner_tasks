@@ -148,6 +148,7 @@ class ComposerStaticInitc57754c93ae34ac3b9b716a0fd2f2149
             'Laravel\\Prompts\\' => 16,
             'Laravel\\Pail\\' => 13,
             'Laravel\\Breeze\\' => 15,
+            'LaravelPWA\\' => 11,
         ),
         'J' => 
         array (
@@ -493,6 +494,10 @@ class ComposerStaticInitc57754c93ae34ac3b9b716a0fd2f2149
         array (
             0 => __DIR__ . '/..' . '/laravel/breeze/src',
         ),
+        'LaravelPWA\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/silviolleite/laravelpwa',
+        ),
         'Jean85\\' => 
         array (
             0 => __DIR__ . '/..' . '/jean85/pretty-package-versions/src',
@@ -626,6 +631,7 @@ class ComposerStaticInitc57754c93ae34ac3b9b716a0fd2f2149
         'App\\Http\\Controllers\\ProjectMemberController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProjectMemberController.php',
         'App\\Http\\Controllers\\StatusController' => __DIR__ . '/../..' . '/app/Http/Controllers/StatusController.php',
         'App\\Http\\Controllers\\TaskController' => __DIR__ . '/../..' . '/app/Http/Controllers/TaskController.php',
+        'App\\Http\\Controllers\\TaskWatcherController' => __DIR__ . '/../..' . '/app/Http/Controllers/TaskWatcherController.php',
         'App\\Http\\Middleware\\EnsureProjectMember' => __DIR__ . '/../..' . '/app/Http/Middleware/EnsureProjectMember.php',
         'App\\Http\\Middleware\\RoleMiddleware' => __DIR__ . '/../..' . '/app/Http/Middleware/RoleMiddleware.php',
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',
@@ -646,6 +652,8 @@ class ComposerStaticInitc57754c93ae34ac3b9b716a0fd2f2149
         'App\\Listeners\\SendNewCommentNotification' => __DIR__ . '/../..' . '/app/Listeners/SendNewCommentNotification.php',
         'App\\Listeners\\SendProjectInvitationNotification' => __DIR__ . '/../..' . '/app/Listeners/SendProjectInvitationNotification.php',
         'App\\Listeners\\SendTaskAssignedNotification' => __DIR__ . '/../..' . '/app/Listeners/SendTaskAssignedNotification.php',
+        'App\\Listeners\\SendTaskDueDateChangedNotification' => __DIR__ . '/../..' . '/app/Listeners/SendTaskDueDateChangedNotification.php',
+        'App\\Listeners\\SendTaskPriorityChangedNotification' => __DIR__ . '/../..' . '/app/Listeners/SendTaskPriorityChangedNotification.php',
         'App\\Listeners\\SendTaskStatusChangedNotification' => __DIR__ . '/../..' . '/app/Listeners/SendTaskStatusChangedNotification.php',
         'App\\Models\\ActivityLog' => __DIR__ . '/../..' . '/app/Models/ActivityLog.php',
         'App\\Models\\Attachment' => __DIR__ . '/../..' . '/app/Models/Attachment.php',
@@ -654,15 +662,19 @@ class ComposerStaticInitc57754c93ae34ac3b9b716a0fd2f2149
         'App\\Models\\Status' => __DIR__ . '/../..' . '/app/Models/Status.php',
         'App\\Models\\Task' => __DIR__ . '/../..' . '/app/Models/Task.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
+        'App\\Notifications\\AdminInviteNotification' => __DIR__ . '/../..' . '/app/Notifications/AdminInviteNotification.php',
         'App\\Notifications\\NewCommentNotification' => __DIR__ . '/../..' . '/app/Notifications/NewCommentNotification.php',
         'App\\Notifications\\ProjectInvitationNotification' => __DIR__ . '/../..' . '/app/Notifications/ProjectInvitationNotification.php',
         'App\\Notifications\\TaskAssignedNotification' => __DIR__ . '/../..' . '/app/Notifications/TaskAssignedNotification.php',
+        'App\\Notifications\\TaskDueDateChangedNotification' => __DIR__ . '/../..' . '/app/Notifications/TaskDueDateChangedNotification.php',
+        'App\\Notifications\\TaskPriorityChangedNotification' => __DIR__ . '/../..' . '/app/Notifications/TaskPriorityChangedNotification.php',
         'App\\Notifications\\TaskStatusChangedNotification' => __DIR__ . '/../..' . '/app/Notifications/TaskStatusChangedNotification.php',
         'App\\Policies\\AttachmentPolicy' => __DIR__ . '/../..' . '/app/Policies/AttachmentPolicy.php',
         'App\\Policies\\CommentPolicy' => __DIR__ . '/../..' . '/app/Policies/CommentPolicy.php',
         'App\\Policies\\ProjectPolicy' => __DIR__ . '/../..' . '/app/Policies/ProjectPolicy.php',
         'App\\Policies\\TaskPolicy' => __DIR__ . '/../..' . '/app/Policies/TaskPolicy.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
+        'App\\Support\\MarkdownConverter' => __DIR__ . '/../..' . '/app/Support/MarkdownConverter.php',
         'App\\View\\Components\\AppLayout' => __DIR__ . '/../..' . '/app/View/Components/AppLayout.php',
         'App\\View\\Components\\GuestLayout' => __DIR__ . '/../..' . '/app/View/Components/GuestLayout.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
@@ -3217,6 +3229,11 @@ class ComposerStaticInitc57754c93ae34ac3b9b716a0fd2f2149
         'Jean85\\Exception\\VersionMissingExceptionInterface' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Exception/VersionMissingExceptionInterface.php',
         'Jean85\\PrettyVersions' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/PrettyVersions.php',
         'Jean85\\Version' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Version.php',
+        'LaravelPWA\\Http\\Controllers\\LaravelPWAController' => __DIR__ . '/..' . '/silviolleite/laravelpwa/Http/Controllers/LaravelPWAController.php',
+        'LaravelPWA\\Providers\\LaravelPWAServiceProvider' => __DIR__ . '/..' . '/silviolleite/laravelpwa/Providers/LaravelPWAServiceProvider.php',
+        'LaravelPWA\\Providers\\RouteServiceProvider' => __DIR__ . '/..' . '/silviolleite/laravelpwa/Providers/RouteServiceProvider.php',
+        'LaravelPWA\\Services\\ManifestService' => __DIR__ . '/..' . '/silviolleite/laravelpwa/Services/ManifestService.php',
+        'LaravelPWA\\Services\\MetaService' => __DIR__ . '/..' . '/silviolleite/laravelpwa/Services/MetaService.php',
         'Laravel\\Breeze\\BreezeServiceProvider' => __DIR__ . '/..' . '/laravel/breeze/src/BreezeServiceProvider.php',
         'Laravel\\Breeze\\Console\\InstallCommand' => __DIR__ . '/..' . '/laravel/breeze/src/Console/InstallCommand.php',
         'Laravel\\Breeze\\Console\\InstallsApiStack' => __DIR__ . '/..' . '/laravel/breeze/src/Console/InstallsApiStack.php',

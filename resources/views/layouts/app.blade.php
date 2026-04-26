@@ -8,7 +8,8 @@
     <link rel="icon" type="image/png" href="{{ asset('images/site-logo-2.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet"/>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    (['resources/css/app.css', 'resources/js/app.js'])
+    @laravelPWA
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
 </head>
 <body class="font-sans antialiased bg-gray-50 text-gray-900">
