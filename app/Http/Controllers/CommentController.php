@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\CommentPosted;
+use App\Notifications\CommentMentionNotification;
+use App\Support\MentionParser;
 use App\Models\ActivityLog;
 use App\Models\Comment;
 use App\Models\Task;
@@ -60,6 +62,9 @@ class CommentController extends Controller
         $comment->load('author', 'task.project', 'task.assignees', 'task.creator');
         CommentPosted::dispatch($comment);
 
+        // Process @mentions in comment body
+        $this->processMentions($comment);
+
         return redirect()->route('projects.tasks.show', [$task->project_id, $task])
             ->with('success', 'Comment posted.');
     }
@@ -95,5 +100,39 @@ class CommentController extends Controller
 
         return redirect()->route('projects.tasks.show', [$projectId, $task])
             ->with('success', 'Comment deleted.');
+    }
+
+    /**
+     * Process @mentions in a comment: auto-watch mentioned users and notify them.
+     * Watchers who are already notified via CommentPosted (general comment notification)
+     * still receive the targeted mention notification so they know they were called out.
+     */
+    private function processMentions(\App\Models\Comment $comment): void
+    {
+        $mentionedIds = MentionParser::extractIds($comment->body);
+
+        if (empty($mentionedIds)) {
+            return;
+        }
+
+        $task  = $comment->task;
+        $users = \App\Models\User::whereIn('id', $mentionedIds)->get();
+
+        foreach ($users as $user) {
+            // Auto-watch
+            $task->addWatcher($user->id);
+
+            // Skip the commenter themselves
+            if ($user->id === $comment->user_id) {
+                continue;
+            }
+
+            // Don't notify clients about internal comments
+            if ($comment->is_internal && $user->projectRole($task->project_id) === 'client') {
+                continue;
+            }
+
+            $user->notify(new CommentMentionNotification($comment));
+        }
     }
 }

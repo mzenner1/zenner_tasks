@@ -75,4 +75,17 @@ class ProjectMemberController extends Controller
         return redirect()->route('projects.members.index', $project)
             ->with('success', "{$user->name} removed from project.");
     }
+
+    public function search(\Illuminate\Http\Request $request, Project $project)
+    {
+        $query = $request->get('q', '');
+
+        $members = $project->members()
+            ->where('name', 'like', '%' . $query . '%')
+            ->orderBy('name')
+            ->get(['users.id', 'users.name'])
+            ->map(fn ($u) => ['id' => $u->id, 'name' => $u->name]);
+
+        return response()->json($members);
+    }
 }

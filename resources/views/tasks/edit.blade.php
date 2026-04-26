@@ -27,6 +27,7 @@
             <textarea name="description"
                       data-easymde
                       data-image-upload-url="{{ route('attachments.image-upload') }}"
+                      data-mention-url="{{ route('projects.members.search', $project) }}"
                       data-csrf="{{ csrf_token() }}">{{ old('description', $task->description) }}</textarea>
         </div>
 

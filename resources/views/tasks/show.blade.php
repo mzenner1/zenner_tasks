@@ -135,6 +135,7 @@
                             <textarea name="body" rows="3" placeholder="Write a comment…" required
                                       data-easymde
                                       data-image-upload-url="{{ route('attachments.image-upload') }}"
+                                      data-mention-url="{{ route('projects.members.search', $project) }}"
                                       data-csrf="{{ csrf_token() }}">{{ old('body') }}</textarea>
                         </div>
                         <div>

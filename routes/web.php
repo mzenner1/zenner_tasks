@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/',         [ProjectMemberController::class, 'index'])->name('index');
             Route::post('/',        [ProjectMemberController::class, 'store'])->name('store');
             Route::delete('/{user}',[ProjectMemberController::class, 'destroy'])->name('destroy');
+            Route::get('/search',   [ProjectMemberController::class, 'search'])->name('search');
         });
 
         // Statuses

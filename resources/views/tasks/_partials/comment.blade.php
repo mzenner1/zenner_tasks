@@ -79,6 +79,7 @@
             <textarea name="body" rows="3"
                       data-easymde
                       data-image-upload-url="{{ route('attachments.image-upload') }}"
+                      data-mention-url="{{ route('projects.members.search', $project) }}"
                       data-csrf="{{ csrf_token() }}">{{ $comment->body }}</textarea>
             @php $editRole = auth()->user()->projectRole($project->id); @endphp
             @if($editRole !== 'client')
@@ -126,6 +127,7 @@
                 <textarea name="body" rows="2" placeholder="Write a reply…"
                           data-easymde
                           data-image-upload-url="{{ route('attachments.image-upload') }}"
+                          data-mention-url="{{ route('projects.members.search', $project) }}"
                           data-csrf="{{ csrf_token() }}"></textarea>
                 <div class="mt-2">
                     <input type="file" name="attachments[]" multiple

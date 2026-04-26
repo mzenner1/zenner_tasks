@@ -11,7 +11,9 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Requests\MoveTaskRequest;
 use Illuminate\Http\Request;
+use App\Notifications\TaskMentionNotification;
 use App\Support\MarkdownConverter;
+use App\Support\MentionParser;
 
 class TaskController extends Controller
 {
@@ -92,6 +94,11 @@ class TaskController extends Controller
         $task->load('assignees', 'project');
         TaskCreated::dispatch($task);
 
+        // Process @mentions in description
+        if ($request->filled('description')) {
+            $this->processMentions($task, $request->description, $request->assignees ?? []);
+        }
+
         return redirect()->route('projects.tasks.show', [$project, $task])
             ->with('success', 'Task created successfully.');
     }
@@ -157,6 +164,7 @@ class TaskController extends Controller
         if ($hasTaskFields) {
             $task->fill($request->only(['title', 'description', 'priority', 'due_date']));
         }
+        $descriptionChanged = $task->isDirty('description');
         if ($hasStatus) {
             $task->fill($request->only(['status_id']));
         }
@@ -164,6 +172,7 @@ class TaskController extends Controller
         // Detect changes and write to activity_log BEFORE saving
         $changes     = [];
         $eventChanges = [];
+        $oldDescription     = $task->getOriginal('description') ?? '';
 
         if ($task->isDirty('status_id')) {
             $oldId = $task->getOriginal('status_id');
@@ -233,6 +242,11 @@ class TaskController extends Controller
             TaskUpdated::dispatch($task, $eventChanges, auth()->id());
         }
 
+        // Process new @mentions added in this edit
+        if ($descriptionChanged && $request->filled('description')) {
+            $this->processMentions($task, $request->description, [], MentionParser::extractIds($oldDescription));
+        }
+
         return redirect()->route('projects.tasks.show', [$project, $task])
             ->with('success', 'Task updated successfully.');
     }
@@ -272,5 +286,40 @@ class TaskController extends Controller
         TaskUpdated::dispatch($task, ['status_id' => [$oldStatusId, $request->status_id]], auth()->id());
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Process @mentions: auto-watch mentioned users and send targeted notifications.
+     * Skips users who are being assigned simultaneously (they get TaskAssignedNotification).
+     * Skips users already mentioned (alreadyMentioned list from previous description).
+     */
+    private function processMentions(Task $task, string $markdown, array $assigneeIds = [], array $alreadyMentioned = []): void
+    {
+        $mentionedIds = MentionParser::extractIds($markdown);
+        $newMentions  = array_diff($mentionedIds, $alreadyMentioned);
+
+        if (empty($newMentions)) {
+            return;
+        }
+
+        $task->loadMissing('project', 'creator');
+        $users = \App\Models\User::whereIn('id', $newMentions)->get();
+
+        foreach ($users as $user) {
+            // Auto-watch
+            $task->addWatcher($user->id);
+
+            // Skip if simultaneously assigned — TaskAssignedNotification covers them
+            if (in_array($user->id, $assigneeIds)) {
+                continue;
+            }
+
+            // Skip the person performing the action
+            if ($user->id === auth()->id()) {
+                continue;
+            }
+
+            $user->notify(new TaskMentionNotification($task));
+        }
     }
 }
