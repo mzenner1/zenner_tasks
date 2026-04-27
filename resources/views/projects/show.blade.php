@@ -230,6 +230,7 @@
                     <th class="text-left px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Priority</th>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Assignees</th>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Due Date</th>
+                    <th class="text-left px-4 py-3 font-semibold text-gray-600 whitespace-nowrap">Created</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -270,9 +271,12 @@
                     <td class="px-4 py-3 whitespace-nowrap {{ $task->due_date?->isPast() ? 'text-red-600 font-medium' : 'text-gray-500' }}">
                         {{ $task->due_date?->format('M j, Y') ?? '—' }}
                     </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-gray-500">
+                        {{ $task->created_at->format('M j, Y') }}
+                    </td>
                 </tr>
                 @empty
-                <tr><td colspan="5" class="px-5 py-10 text-center text-gray-400">No tasks found.</td></tr>
+                <tr><td colspan="6" class="px-5 py-10 text-center text-gray-400">No tasks found.</td></tr>
                 @endforelse
             </tbody>
         </table>
