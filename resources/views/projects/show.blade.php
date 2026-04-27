@@ -178,17 +178,41 @@
         </form>
     </div>
 
-    {{-- Task count bar --}}
-    <div class="bg-white rounded-t-xl border border-gray-200 border-b-0 px-5 py-2.5 text-sm text-gray-500">
-        @if($filteredTaskCount === $totalTaskCount)
-            <span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}
-        @else
-            <span class="font-medium text-indigo-600">{{ $filteredTaskCount }}</span>&nbsp;of&nbsp;<span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}<span class="ml-1.5 text-gray-400">— filtered</span>
-        @endif
+    {{-- Task count + member avatars bar --}}
+    @php $extraMembers = $members->count() - 5; @endphp
+    <div class="bg-white rounded-t-xl border border-gray-200 border-b-0 px-5 py-2 flex items-center justify-between text-sm text-gray-500">
+        {{-- Task count --}}
+        <div>
+            @if($filteredTaskCount === $totalTaskCount)
+                <span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}
+            @else
+                <span class="font-medium text-indigo-600">{{ $filteredTaskCount }}</span>&nbsp;of&nbsp;<span class="font-medium text-gray-700">{{ $totalTaskCount }}</span>&nbsp;{{ Str::plural('task', $totalTaskCount) }}<span class="ml-1.5 text-gray-400">— filtered</span>
+            @endif
+        </div>
+        {{-- Member avatars --}}
+        <div class="flex items-center gap-2">
+            <div class="flex -space-x-2">
+                @foreach($members->take(5) as $member)
+                <x-user-avatar :user="$member" size="md" class="border-2 border-white" :title="$member->name" />
+                @endforeach
+            </div>
+            @if($extraMembers > 0)
+            <span class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 border-2 border-white text-xs font-semibold text-gray-600 flex-shrink-0">
+                +{{ $extraMembers }}
+            </span>
+            @endif
+            @can('update', $project)
+            <a href="{{ route('projects.members.index', $project) }}"
+               title="Manage members"
+               class="w-8 h-8 flex items-center justify-center rounded-full border-2 border-dashed border-gray-300 text-gray-400 hover:border-indigo-400 hover:text-indigo-500 transition text-lg leading-none flex-shrink-0">
+                +
+            </a>
+            @endcan
+        </div>
     </div>
 
     {{-- Task List — mobile cards --}}
-    <div class="bg-white rounded-b-xl border border-gray-200 overflow-hidden -mt-px">
+    <div class="bg-white rounded-b-xl border border-gray-200 overflow-hidden !mt-0">
 
         {{-- Mobile card list (hidden on sm+) --}}
         <div class="divide-y divide-gray-100 sm:hidden">
