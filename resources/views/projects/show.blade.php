@@ -43,8 +43,17 @@
             <div class="flex flex-wrap items-center gap-2 p-3">
 
                 {{-- Search --}}
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search tasks…"
-                       class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-48">
+                <div class="relative w-full sm:w-48" x-data="{ hasValue: {{ request('search') ? 'true' : 'false' }} }">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search tasks…"
+                           @input="hasValue = $el.value.length > 0"
+                           class="border border-gray-300 rounded-lg px-3 py-1.5 pr-7 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full">
+                    <button type="button"
+                            x-show="hasValue"
+                            x-cloak
+                            @click="$el.closest('.relative').querySelector('input').value = ''; hasValue = false; document.getElementById('filter-form').submit()"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-lg leading-none"
+                            title="Clear search">&times;</button>
+                </div>
 
                 {{-- Status multi-select --}}
                 <div class="relative" x-data>

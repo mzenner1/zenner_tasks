@@ -29,7 +29,13 @@ class TaskController extends Controller
             ->when($request->status_id, fn ($q) => $q->where('status_id', $request->status_id))
             ->when($request->priority,  fn ($q) => $q->where('priority', $request->priority))
             ->when($request->due_date,  fn ($q) => $q->whereDate('due_date', $request->due_date))
-            ->when($request->search,    fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'))
+            ->when($request->search, function ($q) use ($request) {
+                $term = ltrim($request->search, '#');
+                $q->where(function ($q2) use ($term) {
+                    $q2->where('title', 'like', '%' . $term . '%')
+                       ->orWhere('task_number', is_numeric($term) ? (int) $term : -1);
+                });
+            })
             ->orderBy('sort_order')
             ->get();
 

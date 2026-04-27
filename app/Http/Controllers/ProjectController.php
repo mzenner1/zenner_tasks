@@ -81,7 +81,13 @@ class ProjectController extends Controller
                   ->with(['assignees', 'creator'])
                   ->when($request->assignee, fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->where('user_id', $request->assignee)))
                   ->when($request->priority,  fn ($q) => $q->where('priority', $request->priority))
-                  ->when($request->search,    fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'))
+                  ->when($request->search, function ($q) use ($request) {
+                      $term = ltrim($request->search, '#');
+                      $q->where(function ($q2) use ($term) {
+                          $q2->where('title', 'like', '%' . $term . '%')
+                             ->orWhere('task_number', is_numeric($term) ? (int) $term : -1);
+                      });
+                  })
                   ->orderBy('sort_order');
             }]);
 
@@ -129,7 +135,13 @@ class ProjectController extends Controller
             ->when(!empty($filterAssignees),  fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->whereIn('user_id', $filterAssignees)))
             ->when(!empty($filterStatusIds),  fn ($q) => $q->whereIn('status_id', $filterStatusIds))
             ->when(!empty($filterPriorities), fn ($q) => $q->whereIn('priority', $filterPriorities))
-            ->when($request->search,          fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'));
+            ->when($request->search, function ($q) use ($request) {
+                $term = ltrim($request->search, '#');
+                $q->where(function ($q2) use ($term) {
+                    $q2->where('title', 'like', '%' . $term . '%')
+                       ->orWhere('task_number', is_numeric($term) ? (int) $term : -1);
+                });
+            });
 
         match ($activeSort) {
             'title'        => $tasksQuery->orderBy('title', 'asc'),
