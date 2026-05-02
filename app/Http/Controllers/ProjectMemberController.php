@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Http\Requests\StoreProjectMemberRequest;
 use App\Notifications\ProjectInvitationNotification;
 use App\Notifications\ProjectAddedNotification;
+use Illuminate\Http\Request;
 
 class ProjectMemberController extends Controller
 {
@@ -66,9 +67,54 @@ class ProjectMemberController extends Controller
                 : "{$user->name} was added to the project and notified by email.");
     }
 
-    public function destroy(Project $project, User $user)
+    public function checkTasks(Project $project, User $user)
     {
         $this->authorize('manageMembers', $project);
+
+        $taskCount = $project->tasks()
+            ->whereHas('assignees', fn ($q) => $q->where('users.id', $user->id))
+            ->count();
+
+        $otherMembers = $project->members()
+            ->where('users.id', '!=', $user->id)
+            ->orderBy('name')
+            ->get(['users.id', 'users.name']);
+
+        return response()->json([
+            'task_count'    => $taskCount,
+            'other_members' => $otherMembers,
+        ]);
+    }
+
+    public function destroy(Request $request, Project $project, User $user)
+    {
+        $this->authorize('manageMembers', $project);
+
+        // Collect tasks in this project assigned to the removed user
+        $assignedTasks = $project->tasks()
+            ->whereHas('assignees', fn ($q) => $q->where('users.id', $user->id))
+            ->with('assignees')
+            ->get();
+
+        if ($assignedTasks->isNotEmpty()) {
+            $reassignTo = $request->input('reassign_to');
+
+            foreach ($assignedTasks as $task) {
+                $task->assignees()->detach($user->id);
+
+                if ($reassignTo) {
+                    // Only reassign if the target is still a project member (other than the removed user)
+                    $targetIsValid = $project->members()
+                        ->where('users.id', $reassignTo)
+                        ->where('users.id', '!=', $user->id)
+                        ->exists();
+
+                    if ($targetIsValid && !$task->assignees()->where('users.id', $reassignTo)->exists()) {
+                        $task->assignees()->attach($reassignTo);
+                    }
+                }
+            }
+        }
 
         $project->members()->detach($user->id);
 

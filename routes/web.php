@@ -34,10 +34,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Project Members
         Route::prefix('projects/{project}/members')->name('projects.members.')->group(function () {
-            Route::get('/',         [ProjectMemberController::class, 'index'])->name('index');
-            Route::post('/',        [ProjectMemberController::class, 'store'])->name('store');
-            Route::delete('/{user}',[ProjectMemberController::class, 'destroy'])->name('destroy');
-            Route::get('/search',   [ProjectMemberController::class, 'search'])->name('search');
+            Route::get('/',                        [ProjectMemberController::class, 'index'])->name('index');
+            Route::post('/',                       [ProjectMemberController::class, 'store'])->name('store');
+            Route::delete('/{user}',               [ProjectMemberController::class, 'destroy'])->name('destroy');
+            Route::get('/search',                  [ProjectMemberController::class, 'search'])->name('search');
+            Route::get('/{user}/check-tasks',      [ProjectMemberController::class, 'checkTasks'])->name('check-tasks');
         });
 
         // Statuses

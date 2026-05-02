@@ -88,7 +88,74 @@
     </div>
 
     {{-- ── Current members ─────────────────────────────────────────── --}}
-    <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+    <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100"
+         x-data="removeMemberModal('{{ csrf_token() }}')">
+
+        {{-- Remove member modal --}}
+        <div x-show="open" x-cloak
+             class="fixed inset-0 z-50 flex items-center justify-center"
+             @keydown.escape.window="cancel()">
+            <div class="absolute inset-0 bg-black/40" @click="cancel()"></div>
+            <div class="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6 space-y-4 z-10">
+
+                <h3 class="text-base font-semibold text-gray-900">Remove Member</h3>
+
+                {{-- Loading state --}}
+                <div x-show="loading" class="text-sm text-gray-500 py-2">Checking assigned tasks…</div>
+
+                {{-- No tasks: simple confirm --}}
+                <template x-if="!loading && taskCount === 0">
+                    <p class="text-sm text-gray-600">
+                        Remove <strong x-text="memberName"></strong> from this project?
+                        They have no tasks assigned.
+                    </p>
+                </template>
+
+                {{-- Has tasks: reassignment choice --}}
+                <template x-if="!loading && taskCount > 0">
+                    <div class="space-y-3">
+                        <p class="text-sm text-gray-600">
+                            <strong x-text="memberName"></strong> has
+                            <strong x-text="taskCount"></strong>
+                            <span x-text="taskCount === 1 ? 'task' : 'tasks'"></span>
+                            assigned in this project.
+                            Would you like to reassign
+                            <span x-text="taskCount === 1 ? 'it' : 'them'"></span>
+                            to another member?
+                        </p>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Reassign to (optional)</label>
+                            <select x-model="reassignTo"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">— Leave unassigned —</option>
+                                <template x-for="m in otherMembers" :key="m.id">
+                                    <option :value="m.id" x-text="m.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </template>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" @click="cancel()"
+                            class="text-sm text-gray-600 hover:text-gray-800 px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-300 transition">
+                        Cancel
+                    </button>
+                    <button type="button" @click="confirm()" x-bind:disabled="loading"
+                            class="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                        Remove
+                    </button>
+                </div>
+
+                {{-- Hidden form that gets submitted --}}
+                <form x-ref="removeForm" method="POST" x-bind:action="formAction" class="hidden">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="reassign_to" x-bind:value="reassignTo">
+                </form>
+            </div>
+        </div>
+
         <div class="px-5 py-3">
             <h2 class="text-sm font-semibold text-gray-700">Current Members ({{ $members->count() }})</h2>
         </div>
@@ -111,11 +178,14 @@
             </div>
             <span class="text-xs font-medium px-2.5 py-1 rounded-full {{ $roleClass }}">{{ $roleLabel }}</span>
             @if($member->id !== auth()->id())
-            <form method="POST" action="{{ route('projects.members.destroy', [$project, $member]) }}">
-                @csrf @method('DELETE')
-                <button type="submit" onclick="return confirm('Remove {{ $member->name }} from this project?')"
-                        class="text-xs text-red-400 hover:text-red-600 transition">Remove</button>
-            </form>
+            <button type="button"
+                    @click="openModal(
+                        '{{ $member->id }}',
+                        '{{ addslashes($member->name) }}',
+                        '{{ route('projects.members.check-tasks', [$project, $member]) }}',
+                        '{{ route('projects.members.destroy', [$project, $member]) }}'
+                    )"
+                    class="text-xs text-red-400 hover:text-red-600 transition">Remove</button>
             @endif
         </div>
         @empty
@@ -171,4 +241,55 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+function removeMemberModal(csrfToken) {
+    return {
+        open: false,
+        loading: false,
+        memberId: null,
+        memberName: '',
+        taskCount: 0,
+        otherMembers: [],
+        reassignTo: '',
+        formAction: '',
+        checkUrl: '',
+
+        openModal(memberId, memberName, checkUrl, formAction) {
+            this.memberId    = memberId;
+            this.memberName  = memberName;
+            this.formAction  = formAction;
+            this.checkUrl    = checkUrl;
+            this.reassignTo  = '';
+            this.taskCount   = 0;
+            this.otherMembers = [];
+            this.loading     = true;
+            this.open        = true;
+
+            fetch(checkUrl, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                this.taskCount    = data.task_count;
+                this.otherMembers = data.other_members;
+                this.loading      = false;
+            })
+            .catch(() => {
+                this.loading = false;
+            });
+        },
+
+        confirm() {
+            this.$refs.removeForm.submit();
+        },
+
+        cancel() {
+            this.open = false;
+        }
+    };
+}
+</script>
+@endpush
 </x-app-layout>
