@@ -30,11 +30,11 @@
             <p class="text-sm text-gray-500 mt-2 ml-6 line-clamp-2">{{ $project->description }}</p>
             @endif
             <div class="flex items-center gap-2 mt-4 ml-6">
-                @foreach($project->members->take(5) as $member)
+                @foreach($project->members->take(4) as $member)
                 <x-user-avatar :user="$member" size="sm" class="border-2 border-white -ml-1 first:ml-0" />
                 @endforeach
-                @if($project->members->count() > 5)
-                <span class="text-xs text-gray-400">+{{ $project->members->count() - 5 }}</span>
+                @if($project->members->count() > 4)
+                <span class="text-xs text-gray-400">+{{ $project->members->count() - 4 }}</span>
                 @endif
             </div>
         </a>

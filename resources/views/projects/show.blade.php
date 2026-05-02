@@ -179,7 +179,7 @@
     </div>
 
     {{-- Task count + member avatars bar --}}
-    @php $extraMembers = $members->count() - 5; @endphp
+    @php $extraMembers = $members->count() - 4; @endphp
     <div class="bg-white rounded-t-xl border border-gray-200 border-b-0 px-5 py-2 flex items-center justify-between text-sm text-gray-500">
         {{-- Task count --}}
         <div>
@@ -192,7 +192,7 @@
         {{-- Member avatars --}}
         <div class="flex items-center gap-2">
             <div class="flex -space-x-2">
-                @foreach($members->take(5) as $member)
+                @foreach($members->take(4) as $member)
                 <x-user-avatar :user="$member" size="md" class="border-2 border-white" :title="$member->name" />
                 @endforeach
             </div>
