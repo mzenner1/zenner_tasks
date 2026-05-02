@@ -133,9 +133,15 @@ class TaskController extends Controller
         $members     = $project->members;
         $activityLog = $task->activityLog()->with('user')->get();
 
+        $availableProjects = Project::forUser($user)
+            ->where('id', '!=', $project->id)
+            ->where('is_archived', false)
+            ->orderBy('name')
+            ->get();
+
         return view('tasks.show', compact(
             'project', 'task', 'comments', 'statuses',
-            'members', 'descriptionHtml', 'activityLog', 'isWatching'
+            'members', 'descriptionHtml', 'activityLog', 'isWatching', 'availableProjects'
         ));
     }
 
@@ -264,6 +270,81 @@ class TaskController extends Controller
 
         return redirect()->route('projects.show', $project)
             ->with('success', 'Task deleted.');
+    }
+
+    public function copyToProject(Request $request, Task $task)
+    {
+        $this->authorize('update', $task);
+
+        $request->validate(['target_project_id' => ['required', 'string']]);
+
+        $targetProject = Project::findOrFail($request->target_project_id);
+
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$targetProject->members()->where('user_id', $user->id)->exists()) {
+            abort(403);
+        }
+
+        $defaultStatus = $targetProject->statuses()->first();
+        if (!$defaultStatus) {
+            return back()->with('error', 'Target project has no statuses configured.');
+        }
+
+        $newTask = $targetProject->tasks()->create([
+            'status_id'   => $defaultStatus->id,
+            'created_by'  => $user->id,
+            'title'       => $task->title,
+            'description' => $task->description,
+            'priority'    => $task->priority,
+            'due_date'    => $task->due_date,
+            'sort_order'  => $targetProject->tasks()->where('status_id', $defaultStatus->id)->max('sort_order') + 1,
+        ]);
+
+        ActivityLog::create([
+            'task_id'    => $newTask->id,
+            'user_id'    => $user->id,
+            'event'      => 'copied_from',
+            'properties' => ['from' => $task->task_number_label . ' in ' . $task->project->name],
+        ]);
+
+        return redirect()->route('projects.tasks.show', [$targetProject, $newTask])
+            ->with('success', 'Task copied to ' . $targetProject->name . '.');
+    }
+
+    public function moveToProject(Request $request, Task $task)
+    {
+        $this->authorize('update', $task);
+
+        $request->validate(['target_project_id' => ['required', 'string']]);
+
+        $targetProject = Project::findOrFail($request->target_project_id);
+
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$targetProject->members()->where('user_id', $user->id)->exists()) {
+            abort(403);
+        }
+
+        $defaultStatus = $targetProject->statuses()->first();
+        if (!$defaultStatus) {
+            return back()->with('error', 'Target project has no statuses configured.');
+        }
+
+        $sourceProjectName = $task->project->name;
+        $task->project_id  = $targetProject->id;
+        $task->status_id   = $defaultStatus->id;
+        $task->sort_order  = $targetProject->tasks()->where('status_id', $defaultStatus->id)->max('sort_order') + 1;
+        $task->task_number = Task::where('project_id', $targetProject->id)->max('task_number') + 1;
+        $task->save();
+
+        ActivityLog::create([
+            'task_id'    => $task->id,
+            'user_id'    => $user->id,
+            'event'      => 'moved_project',
+            'properties' => ['from' => $sourceProjectName, 'to' => $targetProject->name],
+        ]);
+
+        return redirect()->route('projects.tasks.show', [$targetProject, $task])
+            ->with('success', 'Task moved to ' . $targetProject->name . '.');
     }
 
     /**

@@ -1,5 +1,5 @@
 <x-app-layout :title="$task->task_number_label . ' – ' . $task->title">
-<div class="max-w-5xl space-y-6" x-data="{ detailsOpen: false }">
+<div class="max-w-5xl space-y-6" x-data="{ detailsOpen: false, copyModal: false, moveModal: false }">
 
     {{-- Breadcrumb --}}
     <div class="flex items-center justify-between gap-2">
@@ -319,6 +319,18 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     Edit Task
                 </a>
+                @if($availableProjects->isNotEmpty())
+                <button type="button" @click="copyModal = true"
+                        class="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition w-full text-left">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Copy to Project
+                </button>
+                <button type="button" @click="moveModal = true"
+                        class="flex items-center gap-2 text-sm text-gray-600 hover:text-amber-600 transition w-full text-left">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                    Move to Project
+                </button>
+                @endif
                 @endcan
                 @can('delete', $task)
                 <form method="POST" action="{{ route('projects.tasks.destroy', [$project, $task]) }}">
@@ -334,5 +346,87 @@
 
         </div>
     </div>
+
+{{-- Copy to Project Modal --}}
+<div x-show="copyModal"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 !mt-0"
+     @click.self="copyModal = false"
+     style="display:none">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-xl p-6 w-full max-w-sm space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-base font-semibold text-gray-900">Copy Task to Project</h3>
+            <button @click="copyModal = false" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <p class="text-sm text-gray-500">Select a project to copy this task to:</p>
+        <form method="POST" action="{{ route('tasks.copyToProject', $task) }}">
+            @csrf
+            <div class="space-y-1 max-h-64 overflow-y-auto">
+                @foreach($availableProjects as $ap)
+                <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="target_project_id" value="{{ $ap->id }}" required
+                           class="text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                    <span class="text-sm text-gray-700">{{ $ap->name }}</span>
+                </label>
+                @endforeach
+            </div>
+            <button type="submit"
+                    class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                Copy Task
+            </button>
+        </form>
+    </div>
 </div>
+
+{{-- Move to Project Modal --}}
+<div x-show="moveModal"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 !mt-0"
+     @click.self="moveModal = false"
+     style="display:none">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-xl p-6 w-full max-w-sm space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-base font-semibold text-gray-900">Move Task to Project</h3>
+            <button @click="moveModal = false" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <p class="text-sm text-gray-500">Select a project to move this task to:</p>
+        <form method="POST" action="{{ route('tasks.moveToProject', $task) }}">
+            @csrf
+            <div class="space-y-1 max-h-64 overflow-y-auto">
+                @foreach($availableProjects as $ap)
+                <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="target_project_id" value="{{ $ap->id }}" required
+                           class="text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                    <span class="text-sm text-gray-700">{{ $ap->name }}</span>
+                </label>
+                @endforeach
+            </div>
+            <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p class="text-xs text-amber-700">
+                    <strong>Note:</strong> The task will be placed in the first available status of the target project.
+                </p>
+            </div>
+            <button type="submit"
+                    class="mt-3 w-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                Move Task
+            </button>
+        </form>
+    </div>
+</div>
+
+</div>{{-- end x-data --}}
 </x-app-layout>

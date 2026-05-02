@@ -54,6 +54,8 @@ class ActivityLog extends Model
             'created'          => 'created this task',
             'archived'         => 'archived this task',
             'restored'         => 'restored this task',
+            'copied_from'      => 'copied from ' . ($this->properties['from'] ?? 'another task'),
+            'moved_project'    => 'moved this task from "' . ($this->properties['from'] ?? '?') . '" to "' . ($this->properties['to'] ?? '?') . '"',
             default            => $this->event,
         };
     }

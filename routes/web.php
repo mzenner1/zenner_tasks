@@ -72,6 +72,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Kanban drag-drop move (task only — no project param needed, task carries project context)
     Route::post('tasks/{task}/move', [TaskController::class, 'move'])->name('tasks.move');
 
+    // Copy / Move task to another project
+    Route::post('tasks/{task}/copy-to-project', [TaskController::class, 'copyToProject'])->name('tasks.copyToProject');
+    Route::post('tasks/{task}/move-to-project', [TaskController::class, 'moveToProject'])->name('tasks.moveToProject');
+
     // Watch / Unwatch
     Route::post('tasks/{task}/watch',   [TaskWatcherController::class, 'store'])->name('tasks.watch');
     Route::delete('tasks/{task}/watch', [TaskWatcherController::class, 'destroy'])->name('tasks.unwatch');
