@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
@@ -99,6 +100,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin,admin')->group(function () {
         Route::post('users/invite', [UserController::class, 'invite'])->name('users.invite');
         Route::resource('users', UserController::class)->except(['create', 'store']);
+
+        // Archived projects
+        Route::get('projects/archived',              [AdminProjectController::class, 'archived'])->name('projects.archived');
+        Route::post('projects/{project}/unarchive',  [AdminProjectController::class, 'unarchive'])->name('projects.unarchive');
     });
 
 });

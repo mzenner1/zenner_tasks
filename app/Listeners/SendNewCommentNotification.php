@@ -12,6 +12,10 @@ class SendNewCommentNotification
         $comment = $event->comment;
         $task    = $comment->task;
 
+        if ($task->project->is_archived) {
+            return;
+        }
+
         $task->load('watchers');
 
         $recipients = $task->watchers

@@ -10,6 +10,10 @@ class SendTaskDueDateChangedNotification
 {
     public function handle(TaskUpdated $event): void
     {
+        if ($event->task->project->is_archived) {
+            return;
+        }
+
         if (!isset($event->changes['due_date'])) {
             return;
         }

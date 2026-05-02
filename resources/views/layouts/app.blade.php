@@ -123,6 +123,7 @@
                     <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Profile</a>
                     @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Admin: Users</a>
+                    <a href="{{ route('admin.projects.archived') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Admin: Archived Projects</a>
                     @endif
                     <div class="border-t border-gray-700"></div>
                     <form method="POST" action="{{ route('logout') }}">

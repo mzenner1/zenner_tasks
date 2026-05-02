@@ -116,6 +116,11 @@ class CommentController extends Controller
         }
 
         $task  = $comment->task;
+
+        if ($task->project->is_archived) {
+            return;
+        }
+
         $users = \App\Models\User::whereIn('id', $mentionedIds)->get();
 
         foreach ($users as $user) {

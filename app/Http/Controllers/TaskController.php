@@ -308,6 +308,10 @@ class TaskController extends Controller
             return;
         }
 
+        if ($task->project->is_archived) {
+            return;
+        }
+
         $task->loadMissing('project', 'creator');
         $users = \App\Models\User::whereIn('id', $newMentions)->get();
 

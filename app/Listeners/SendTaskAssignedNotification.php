@@ -11,6 +11,10 @@ class SendTaskAssignedNotification
     {
         $task = $event->task;
 
+        if ($task->project->is_archived) {
+            return;
+        }
+
         // Auto-watch: the task creator watches the task
         $task->addWatcher($task->created_by);
 

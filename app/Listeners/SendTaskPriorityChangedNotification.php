@@ -9,6 +9,10 @@ class SendTaskPriorityChangedNotification
 {
     public function handle(TaskUpdated $event): void
     {
+        if ($event->task->project->is_archived) {
+            return;
+        }
+
         if (!isset($event->changes['priority'])) {
             return;
         }
