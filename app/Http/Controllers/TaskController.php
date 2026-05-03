@@ -110,6 +110,11 @@ class TaskController extends Controller
             $this->processMentions($task, $request->description, $request->assignees ?? []);
         }
 
+        if ($request->input('_action') === 'create_another') {
+            return redirect()->route('projects.tasks.create', $project)
+                ->with('success', 'Task created successfully.');
+        }
+
         return redirect()->route('projects.tasks.show', [$project, $task])
             ->with('success', 'Task created successfully.');
     }
