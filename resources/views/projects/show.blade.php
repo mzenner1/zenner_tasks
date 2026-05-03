@@ -266,6 +266,12 @@
                         <span class="font-mono text-indigo-500 font-semibold text-xs flex-shrink-0">{{ $task->task_number_label }}</span>
                         <span class="text-sm font-medium text-gray-900 truncate">{{ $task->title }}</span>
                     </div>
+                    @php
+                        $commentExcerpt = trim(preg_replace('/\s+/', ' ', strip_tags(preg_replace(['/!\[[^\]]*\]\([^)]*\)/', '/@\[([^\]]+)\]\([^)]*\)/'], ['', '@$1'], $task->latestComment->body ?? ''))));
+                    @endphp
+                    @if($task->latestComment && $commentExcerpt)
+                    <p class="text-xs text-gray-400 mt-0.5 line-clamp-1">{{ Str::limit($commentExcerpt, 100) }}</p>
+                    @endif
                     <div class="flex items-center gap-2 mt-1.5 flex-wrap">
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-white"
                               style="background-color: {{ $task->status->color }}">
@@ -324,6 +330,12 @@
                             </span>
                             @endif
                         </div>
+                        @php
+                            $commentExcerpt = trim(preg_replace('/\s+/', ' ', strip_tags(preg_replace(['/!\[[^\]]*\]\([^)]*\)/', '/@\[([^\]]+)\]\([^)]*\)/'], ['', '@$1'], $task->latestComment->body ?? ''))));
+                        @endphp
+                        @if($task->latestComment && $commentExcerpt)
+                        <p class="text-xs text-gray-400 mt-0.5 line-clamp-1 max-w-lg">{{ Str::limit($commentExcerpt, 160) }}</p>
+                        @endif
                         @if($task->tags->isNotEmpty())
                         <div class="flex flex-wrap gap-1 mt-1.5">
                             @foreach($task->tags as $tag)

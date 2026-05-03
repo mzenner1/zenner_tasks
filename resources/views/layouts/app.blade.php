@@ -169,8 +169,26 @@
         </div>
         @endif
 
-        <main class="flex-1 overflow-y-auto p-6">
+        <main class="flex-1 overflow-y-auto p-6" x-data="{ atTop: true }" @scroll.passive="atTop = $el.scrollTop < 100" x-ref="mainContent">
             {{ $slot }}
+
+            {{-- Back to top button --}}
+            <button
+                x-show="!atTop"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-75"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-75"
+                @click="$refs.mainContent.scrollTo({ top: 0, behavior: 'smooth' })"
+                class="fixed bottom-6 right-6 z-50 p-3 bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-600 transition"
+                aria-label="Back to top"
+                style="display: none;">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                </svg>
+            </button>
         </main>
     </div>
 </div>
