@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\StatusController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskWatcherController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ]);
         Route::post('projects/{project}/statuses/reorder', [StatusController::class, 'reorder'])
             ->name('projects.statuses.reorder');
+
+        // Tags
+        Route::get('projects/{project}/tags',              [TagController::class, 'index'])->name('projects.tags.index');
+        Route::post('projects/{project}/tags',             [TagController::class, 'store'])->name('projects.tags.store');
+        Route::put('projects/{project}/tags/{tag}',        [TagController::class, 'update'])->name('projects.tags.update');
+        Route::delete('projects/{project}/tags/{tag}',     [TagController::class, 'destroy'])->name('projects.tags.destroy');
 
         // Tasks
         Route::resource('projects/{project}/tasks', TaskController::class)

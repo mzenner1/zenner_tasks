@@ -51,8 +51,9 @@ class TaskController extends Controller
 
         $statuses = $project->statuses;
         $members  = $project->members;
+        $tags     = $project->tags;
 
-        return view('tasks.create', compact('project', 'statuses', 'members'));
+        return view('tasks.create', compact('project', 'statuses', 'members', 'tags'));
     }
 
     public function store(StoreTaskRequest $request, Project $project)
@@ -71,6 +72,10 @@ class TaskController extends Controller
 
         if ($request->filled('assignees')) {
             $task->assignees()->sync($request->assignees);
+        }
+
+        if ($request->filled('tags')) {
+            $task->tags()->sync($request->tags);
         }
 
         $task->update(['last_activity_at' => now()]);
@@ -115,7 +120,7 @@ class TaskController extends Controller
 
         $user = auth()->user();
 
-        $task->load(['assignees', 'status', 'creator', 'attachments.uploader', 'activityLog.user', 'watchers']);
+        $task->load(['assignees', 'status', 'creator', 'attachments.uploader', 'activityLog.user', 'watchers', 'tags']);
         $isWatching = $task->watchers->contains('id', $user->id);
 
         
@@ -131,6 +136,7 @@ class TaskController extends Controller
 
         $statuses    = $project->statuses;
         $members     = $project->members;
+        $tags        = $project->tags;
         $activityLog = $task->activityLog()->with('user')->get();
 
         $availableProjects = Project::forUser($user)
@@ -141,7 +147,7 @@ class TaskController extends Controller
 
         return view('tasks.show', compact(
             'project', 'task', 'comments', 'statuses',
-            'members', 'descriptionHtml', 'activityLog', 'isWatching', 'availableProjects'
+            'members', 'tags', 'descriptionHtml', 'activityLog', 'isWatching', 'availableProjects'
         ));
     }
 
@@ -151,8 +157,9 @@ class TaskController extends Controller
 
         $statuses = $project->statuses;
         $members  = $project->members;
+        $tags     = $project->tags;
 
-        return view('tasks.edit', compact('project', 'task', 'statuses', 'members'));
+        return view('tasks.edit', compact('project', 'task', 'statuses', 'members', 'tags'));
     }
 
     public function update(UpdateTaskRequest $request, Project $project, Task $task)
@@ -160,6 +167,7 @@ class TaskController extends Controller
         $hasTaskFields = $request->hasAny(['title', 'description', 'priority', 'due_date']);
         $hasStatus     = $request->has('status_id');
         $hasAssignees  = $request->has('assignees');
+        $hasTags       = $request->has('tags');
 
         // Authorize each action independently so clients/members can change
         // status and assignees on any task, not just ones they created.
@@ -223,6 +231,11 @@ class TaskController extends Controller
         // Sync assignees if provided
         if ($hasAssignees) {
             $task->assignees()->sync($request->assignees ?? []);
+        }
+
+        // Sync tags if provided
+        if ($hasTags) {
+            $task->tags()->sync($request->tags ?? []);
         }
 
         foreach ($changes as $change) {

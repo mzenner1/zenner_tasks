@@ -71,6 +71,26 @@
             </div>
         </div>
 
+        @if($tags->isNotEmpty())
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+            <div class="flex flex-wrap gap-2">
+                @foreach($tags as $tag)
+                <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                    <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                           {{ in_array($tag->id, old('tags', [])) ? 'checked' : '' }}
+                           class="sr-only peer">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white opacity-40 peer-checked:opacity-100 transition ring-2 ring-transparent peer-checked:ring-offset-1 cursor-pointer"
+                          style="background-color: {{ $tag->color }}; --ring-color: {{ $tag->color }}"
+                          :style="'ring-color: ' + '{{ $tag->color }}'">
+                        {{ $tag->name }}
+                    </span>
+                </label>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
             <input type="file" name="attachments[]" multiple

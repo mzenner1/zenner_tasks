@@ -82,6 +82,11 @@ class Task extends Model
         return $this->belongsToMany(User::class, 'task_watchers')->withTimestamps();
     }
 
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'task_tag');
+    }
+
     /**
      * Add a user as a watcher (idempotent).
      */

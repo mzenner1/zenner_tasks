@@ -24,6 +24,12 @@
                 ⚙ Settings
             </a>
             @endcan
+            @can('manageTags', $project)
+            <a href="{{ route('projects.tags.index', $project) }}"
+               class="px-3 py-1.5 text-xs rounded-lg border border-gray-300 bg-white text-gray-600 hover:border-indigo-400 transition">
+                🏷 Tags
+            </a>
+            @endcan
             @can('create', App\Models\Task::class)
             <a href="{{ route('projects.tasks.create', $project) }}"
                class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition">
@@ -140,9 +146,40 @@
                     </div>
                 </div>
 
+                {{-- Tag multi-select --}}
+                @if($tags->isNotEmpty())
+                <div class="relative" x-data>
+                    <button type="button" @click="toggle('tag')"
+                            class="flex items-center gap-2 border rounded-lg px-3 pr-8 py-1.5 text-sm min-w-[120px] relative focus:outline-none focus:ring-2 focus:ring-indigo-500 transition
+                                   {{ count($filterTagIds) ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-300 bg-white text-gray-700' }}">
+                        <span>
+                            @if(count($filterTagIds))
+                                {{ count($filterTagIds) }} {{ count($filterTagIds) === 1 ? 'Tag' : 'Tags' }}
+                            @else
+                                All Tags
+                            @endif
+                        </span>
+                        <svg class="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="open === 'tag'" x-cloak
+                         class="absolute z-50 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg min-w-[180px] py-1">
+                        @foreach($tags as $tag)
+                        <label class="flex items-center gap-2.5 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm text-gray-700">
+                            <input type="checkbox" name="tag_ids[]" value="{{ $tag->id }}"
+                                   {{ in_array($tag->id, $filterTagIds) ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0" style="background-color: {{ $tag->color }}"></span>
+                                {{ $tag->name }}
+                            </span>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
                 {{-- Sort (list view only) --}}
-                @if(request('view', 'list') === 'list')
-                <select name="sort"
+                @if(request('view', 'list') === 'list')                <select name="sort"
                         onchange="document.getElementById('filter-form').submit()"
                         class="border border-gray-300 rounded-lg px-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto">
                     <option value="updated"      {{ ($activeSort ?? 'updated') === 'updated'      ? 'selected' : '' }}>Recently Updated</option>
@@ -164,7 +201,7 @@
                     Apply
                 </button>
                 @php
-                    $hasActiveFilters = count($filterStatusIds) || count($filterPriorities) || count($filterAssignees) || request('search');
+                    $hasActiveFilters = count($filterStatusIds) || count($filterPriorities) || count($filterAssignees) || count($filterTagIds) || request('search');
                 @endphp
                 @if($hasActiveFilters)
                 @php
@@ -240,6 +277,10 @@
                             {{ $task->due_date->format('M j') }}
                         </span>
                         @endif
+                        @foreach($task->tags as $tag)
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium text-white"
+                              style="background-color: {{ $tag->color }}">{{ $tag->name }}</span>
+                        @endforeach
                     </div>
                 </div>
                 {{-- Assignees --}}
@@ -283,6 +324,16 @@
                             </span>
                             @endif
                         </div>
+                        @if($task->tags->isNotEmpty())
+                        <div class="flex flex-wrap gap-1 mt-1.5">
+                            @foreach($task->tags as $tag)
+                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium text-white"
+                                  style="background-color: {{ $tag->color }}">
+                                {{ $tag->name }}
+                            </span>
+                            @endforeach
+                        </div>
+                        @endif
                     </td>
                     <td class="px-4 py-3">
                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium text-white whitespace-nowrap"

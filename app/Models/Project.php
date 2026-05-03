@@ -62,6 +62,11 @@ class Project extends Model
         return $this->hasMany(Status::class)->orderBy('sort_order');
     }
 
+    public function tags(): HasMany
+    {
+        return $this->hasMany(Tag::class)->orderBy('name');
+    }
+
     // ─── Scopes ───────────────────────────────────────────────────────────────
 
     /**

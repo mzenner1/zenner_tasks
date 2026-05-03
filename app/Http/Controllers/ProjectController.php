@@ -79,7 +79,7 @@ class ProjectController extends Controller
         if ($request->view === 'board') {
             $statuses->load(['tasks' => function ($q) use ($request) {
                 $q->where('is_archived', false)
-                  ->with(['assignees', 'creator'])
+                  ->with(['assignees', 'creator', 'tags'])
                   ->when($request->assignee, fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->where('user_id', $request->assignee)))
                   ->when($request->priority,  fn ($q) => $q->where('priority', $request->priority))
                   ->when($request->search, function ($q) use ($request) {
@@ -107,7 +107,7 @@ class ProjectController extends Controller
             : ($user->getProjectSortPreference($project->id) ?? 'updated');
 
         // ── Persist / resolve filters ─────────────────────────────────────────
-        $filterKeys = ['status_ids', 'priorities', 'assignees'];
+        $filterKeys = ['status_ids', 'priorities', 'assignees', 'tag_ids'];
         $filtersInRequest = collect($filterKeys)->filter(fn ($k) => $request->has($k))->isNotEmpty();
 
         if ($request->boolean('clear_filters')) {
@@ -118,6 +118,7 @@ class ProjectController extends Controller
                 'status_ids' => $request->input('status_ids', []),
                 'priorities' => $request->input('priorities', []),
                 'assignees'  => $request->input('assignees', []),
+                'tag_ids'    => $request->input('tag_ids', []),
             ];
             $user->setProjectFiltersPreference($project->id, $savedFilters);
             $activeFilters = $savedFilters;
@@ -128,14 +129,16 @@ class ProjectController extends Controller
         $filterStatusIds = array_filter((array) ($activeFilters['status_ids'] ?? []));
         $filterPriorities = array_filter((array) ($activeFilters['priorities'] ?? []));
         $filterAssignees  = array_filter((array) ($activeFilters['assignees']  ?? []));
+        $filterTagIds     = array_filter((array) ($activeFilters['tag_ids']    ?? []));
 
         $tasksQuery = $project->tasks()
             ->where('is_archived', false)
-            ->with(['assignees', 'status', 'creator'])
+            ->with(['assignees', 'status', 'creator', 'tags'])
             ->withCount('comments')
             ->when(!empty($filterAssignees),  fn ($q) => $q->whereHas('assignees', fn ($q2) => $q2->whereIn('user_id', $filterAssignees)))
             ->when(!empty($filterStatusIds),  fn ($q) => $q->whereIn('status_id', $filterStatusIds))
             ->when(!empty($filterPriorities), fn ($q) => $q->whereIn('priority', $filterPriorities))
+            ->when(!empty($filterTagIds),     fn ($q) => $q->whereHas('tags', fn ($q2) => $q2->whereIn('tags.id', $filterTagIds)))
             ->when($request->search, function ($q) use ($request) {
                 $term = ltrim($request->search, '#');
                 $q->where(function ($q2) use ($term) {
@@ -158,9 +161,11 @@ class ProjectController extends Controller
         $tasks = $tasksQuery->get();
         $filteredTaskCount = $tasks->count();
 
+        $tags = $project->tags;
+
         return view('projects.show', compact(
-            'project', 'statuses', 'members', 'tasks',
-            'activeSort', 'filterStatusIds', 'filterPriorities', 'filterAssignees',
+            'project', 'statuses', 'members', 'tasks', 'tags',
+            'activeSort', 'filterStatusIds', 'filterPriorities', 'filterAssignees', 'filterTagIds',
             'totalTaskCount', 'filteredTaskCount'
         ));
     }

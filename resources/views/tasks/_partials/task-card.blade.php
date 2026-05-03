@@ -31,4 +31,14 @@
         @endforeach
     </div>
     @endif
+
+    {{-- Tags --}}
+    @if($task->relationLoaded('tags') && $task->tags->isNotEmpty())
+    <div class="flex flex-wrap gap-1 mt-2">
+        @foreach($task->tags as $tag)
+        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium text-white"
+              style="background-color: {{ $tag->color }}">{{ $tag->name }}</span>
+        @endforeach
+    </div>
+    @endif
 </div>

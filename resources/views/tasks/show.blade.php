@@ -271,6 +271,44 @@
             @endcan
             @endcan
 
+            {{-- Tags --}}
+            @if($tags->isNotEmpty())
+            <div class="bg-white rounded-xl border border-gray-200 p-4">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Tags</label>
+                @can('update', $task)
+                <form method="POST" action="{{ route('projects.tasks.update', [$project, $task]) }}">
+                    @csrf @method('PUT')
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($tags as $tag)
+                        <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                            <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                                   {{ $task->tags->contains($tag->id) ? 'checked' : '' }}
+                                   class="sr-only peer">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium text-white opacity-40 peer-checked:opacity-100 transition cursor-pointer"
+                                  style="background-color: {{ $tag->color }}">
+                                {{ $tag->name }}
+                            </span>
+                        </label>
+                        @endforeach
+                    </div>
+                    <button type="submit"
+                            class="mt-3 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm py-1.5 rounded-lg transition">
+                        Update Tags
+                    </button>
+                </form>
+                @else
+                <div class="flex flex-wrap gap-1.5">
+                    @forelse($task->tags as $tag)
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                          style="background-color: {{ $tag->color }}">{{ $tag->name }}</span>
+                    @empty
+                    <span class="text-xs text-gray-400">No tags</span>
+                    @endforelse
+                </div>
+                @endcan
+            </div>
+            @endif
+
             {{-- Meta: created by / date --}}
             <div class="bg-white rounded-xl border border-gray-200 p-4 text-xs text-gray-500 space-y-1">
                 <div>Created by <span class="font-medium text-gray-700">{{ $task->creator->name }}</span></div>

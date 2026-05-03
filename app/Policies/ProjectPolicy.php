@@ -82,4 +82,12 @@ class ProjectPolicy
     {
         return in_array($user->projectRole($project->id), ['admin']) || $user->isAdmin();
     }
+
+    /**
+     * Only a project admin (or global admin) can manage tags.
+     */
+    public function manageTags(User $user, Project $project): bool
+    {
+        return in_array($user->projectRole($project->id), ['admin']) || $user->isAdmin();
+    }
 }
