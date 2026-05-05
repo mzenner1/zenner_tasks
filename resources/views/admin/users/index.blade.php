@@ -120,7 +120,8 @@
                         ['Create tasks',                     true,  true,  true ],
                         ['Edit any task',                    true,  true,  false],
                         ['Edit own tasks only',              false, false, true ],
-                        ['Delete tasks',                     true,  false, false],
+                        ['Delete tasks',                     true,  true,  false],
+                        ['Change task due date',             true,  true,  false],
                         ['Change task status',               true,  true,  true ],
                         ['Assign tasks to others',           true,  true,  true ],
                         ['View internal comments',           true,  true,  false],
@@ -128,6 +129,7 @@
                         ['Post public comments',             true,  true,  true ],
                         ['Manage project settings',          true,  false, false],
                         ['Manage statuses & workflow',       true,  false, false],
+                        ['Manage tags',                      true,  true,  false],
                         ['Add / remove project members',     true,  false, false],
                     ];
                     @endphp

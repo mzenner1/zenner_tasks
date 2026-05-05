@@ -60,12 +60,21 @@ class TaskPolicy
     }
 
     /**
-     * Only project admins (and global admins) can delete tasks.
+     * Project admins, members, and global admins can delete tasks.
      */
     public function delete(User $user, Task $task): bool
     {
         $role = $user->projectRole($task->project_id);
-        return $role === 'admin' || $user->isAdmin();
+        return in_array($role, ['admin', 'member']) || $user->isAdmin();
+    }
+
+    /**
+     * Only admins and members can change a task's due date.
+     */
+    public function changeDueDate(User $user, Task $task): bool
+    {
+        $role = $user->projectRole($task->project_id);
+        return in_array($role, ['admin', 'member']) || $user->isAdmin();
     }
 
     /**

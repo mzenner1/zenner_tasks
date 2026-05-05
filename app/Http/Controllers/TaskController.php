@@ -179,6 +179,9 @@ class TaskController extends Controller
         if ($hasTaskFields) {
             $this->authorize('update', $task);
         }
+        if ($request->has('due_date')) {
+            $this->authorize('changeDueDate', $task);
+        }
         if ($hasStatus) {
             $this->authorize('changeStatus', $task);
         }
@@ -235,7 +238,29 @@ class TaskController extends Controller
 
         // Sync assignees if provided
         if ($hasAssignees) {
-            $task->assignees()->sync($request->assignees ?? []);
+            $previousAssignees = $task->assignees()->get()->keyBy('id');
+            $syncResult = $task->assignees()->sync($request->assignees ?? []);
+
+            // Log each newly assigned user
+            foreach ($syncResult['attached'] as $userId) {
+                $name = \App\Models\User::find($userId)?->name ?? 'Unknown';
+                ActivityLog::create([
+                    'task_id'    => $task->id,
+                    'user_id'    => auth()->id(),
+                    'event'      => 'assigned',
+                    'properties' => ['to' => $name],
+                ]);
+            }
+            // Log each removed assignee
+            foreach ($syncResult['detached'] as $userId) {
+                $name = $previousAssignees[$userId]?->name ?? 'Unknown';
+                ActivityLog::create([
+                    'task_id'    => $task->id,
+                    'user_id'    => auth()->id(),
+                    'event'      => 'unassigned',
+                    'properties' => ['from' => $name],
+                ]);
+            }
         }
 
         // Sync tags if provided

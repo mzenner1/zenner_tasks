@@ -11,6 +11,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\MassTaskController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskWatcherController;
 use Illuminate\Support\Facades\Route;
@@ -62,6 +63,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('projects/{project}/tags',             [TagController::class, 'store'])->name('projects.tags.store');
         Route::put('projects/{project}/tags/{tag}',        [TagController::class, 'update'])->name('projects.tags.update');
         Route::delete('projects/{project}/tags/{tag}',     [TagController::class, 'destroy'])->name('projects.tags.destroy');
+
+        // Mass task actions (must be before resource to avoid route conflicts)
+        Route::post('projects/{project}/tasks/mass-action', [MassTaskController::class, 'handle'])->name('projects.tasks.mass-action');
 
         // Tasks
         Route::resource('projects/{project}/tasks', TaskController::class)

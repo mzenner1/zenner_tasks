@@ -163,10 +163,16 @@ class ProjectController extends Controller
 
         $tags = $project->tags;
 
+        $availableProjects = Project::forUser($user)
+            ->where('id', '!=', $project->id)
+            ->where('is_archived', false)
+            ->orderBy('name')
+            ->get();
+
         return view('projects.show', compact(
             'project', 'statuses', 'members', 'tasks', 'tags',
             'activeSort', 'filterStatusIds', 'filterPriorities', 'filterAssignees', 'filterTagIds',
-            'totalTaskCount', 'filteredTaskCount'
+            'totalTaskCount', 'filteredTaskCount', 'availableProjects'
         ));
     }
 

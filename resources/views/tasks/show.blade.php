@@ -237,12 +237,16 @@
             {{-- Due Date --}}
             <div class="bg-white rounded-xl border border-gray-200 p-4">
                 <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Due Date</label>
+                @can('changeDueDate', $task)
                 <form method="POST" action="{{ route('projects.tasks.update', [$project, $task]) }}">
                     @csrf @method('PUT')
                     <input type="date" name="due_date" value="{{ $task->due_date?->format('Y-m-d') }}"
                            onchange="this.form.submit()"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </form>
+                @else
+                <p class="text-sm text-gray-700">{{ $task->due_date?->format('M j, Y') ?? '—' }}</p>
+                @endcan
             </div>
 
             {{-- Assignees --}}
