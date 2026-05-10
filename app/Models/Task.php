@@ -28,6 +28,7 @@ class Task extends Model
         'sort_order',
         'is_archived',
         'last_activity_at',
+        'source_comment_id',
     ];
 
     protected $casts = [
@@ -61,6 +62,11 @@ class Task extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function sourceComment(): BelongsTo
+    {
+        return $this->belongsTo(Comment::class, 'source_comment_id');
     }
 
     public function status(): BelongsTo

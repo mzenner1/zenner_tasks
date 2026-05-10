@@ -1,4 +1,15 @@
 /* ── @mention autocomplete dropdown ──────────────────────────────────────── */
+
+/* Make CodeMirror grow with content — removes the editor's own scrollbar */
+.CodeMirror {
+    height: auto !important;
+}
+.CodeMirror-scroll {
+    overflow-y: hidden !important;
+    overflow-x: auto !important;
+    min-height: 200px;
+}
+
 .mention-dropdown {
     position: fixed;
     z-index: 9999;

@@ -1,5 +1,5 @@
 @php $user = auth()->user(); @endphp
-<div class="rounded-xl border p-4 space-y-2 {{ $comment->is_internal ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-200' }}">
+<div id="comment-{{ $comment->id }}" class="rounded-xl border p-4 space-y-2 {{ $comment->is_internal ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-200' }}">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
             <x-user-avatar :user="$comment->author" size="sm" />
@@ -16,6 +16,12 @@
             <button onclick="document.getElementById('edit-comment-{{ $comment->id }}').classList.toggle('hidden')"
                     class="text-xs text-gray-400 hover:text-indigo-600">Edit</button>
             @endcan
+            @can('create', App\Models\Task::class)
+            @if(!$comment->createdTask)
+            <button onclick="document.getElementById('convert-to-task-modal-{{ $comment->id }}').classList.remove('hidden')"
+                    class="text-xs text-gray-400 hover:text-emerald-600" title="Convert to Task">&#x2794; New Task</button>
+            @endif
+            @endcan
             @can('delete', $comment)
             <form method="POST" action="{{ route('comments.destroy', $comment) }}" class="inline">
                 @csrf @method('DELETE')
@@ -28,6 +34,41 @@
 
     {{-- Comment body --}}
     <div class="text-sm text-gray-700 ml-9 leading-relaxed prose prose-sm max-w-none">{!! $comment->bodyHtml() !!}</div>
+
+    {{-- "Task created from this comment" indicator --}}
+    @if($comment->createdTask)
+    @php $ct = $comment->createdTask; @endphp
+    <div class="ml-9 flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 w-fit">
+        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Task created:
+        <a href="{{ route('projects.tasks.show', [$ct->project_id, $ct]) }}"
+           class="font-semibold hover:underline">{{ $ct->task_number_label }} – {{ $ct->title }}</a>
+    </div>
+    @endif
+
+    {{-- Convert-to-task modal --}}
+    @can('create', App\Models\Task::class)
+    @if(!$comment->createdTask)
+    <div id="convert-to-task-modal-{{ $comment->id }}"
+         class="hidden ml-9 mt-2 bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-3">
+        <p class="text-sm font-medium text-gray-700">Create a new task from this comment</p>
+        <form method="POST" action="{{ route('comments.convert-to-task', $comment) }}" class="space-y-2">
+            @csrf
+            <input type="text" name="title" required placeholder="Task title…"
+                   class="w-full text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                    Create Task
+                </button>
+                <button type="button"
+                        onclick="document.getElementById('convert-to-task-modal-{{ $comment->id }}').classList.add('hidden')"
+                        class="text-xs text-gray-500 hover:text-gray-700 px-3 py-1.5">Cancel</button>
+            </div>
+        </form>
+    </div>
+    @endif
+    @endcan
 
     {{-- Comment attachments --}}
     @if($comment->attachments->count())

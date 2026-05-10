@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommentToTaskController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
@@ -95,6 +96,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('tasks/{task}/comments',    [CommentController::class, 'store'])->name('comments.store');
     Route::put('comments/{comment}',        [CommentController::class, 'update'])->name('comments.update');
     Route::delete('comments/{comment}',     [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::post('comments/{comment}/convert-to-task', [CommentToTaskController::class, 'store'])->name('comments.convert-to-task');
 
     // Attachments
     Route::post('attachments',                        [AttachmentController::class, 'store'])->name('attachments.store');

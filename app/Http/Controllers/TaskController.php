@@ -125,7 +125,7 @@ class TaskController extends Controller
 
         $user = auth()->user();
 
-        $task->load(['assignees', 'status', 'creator', 'attachments.uploader', 'activityLog.user', 'watchers', 'tags']);
+        $task->load(['assignees', 'status', 'creator', 'attachments.uploader', 'activityLog.user', 'watchers', 'tags', 'sourceComment.task']);
         $isWatching = $task->watchers->contains('id', $user->id);
 
         
@@ -136,7 +136,7 @@ class TaskController extends Controller
         $comments = $task->comments()
             ->visibleTo($user, $project->id)
             ->topLevel()
-            ->with(['author', 'attachments', 'replies' => fn ($q) => $q->with('author')])
+            ->with(['author', 'attachments', 'createdTask', 'replies' => fn ($q) => $q->with(['author', 'createdTask'])])
             ->get();
 
         $statuses    = $project->statuses;

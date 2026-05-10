@@ -148,6 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
             element: el,
             spellChecker: false,
             autosave: { enabled: false },
+            minHeight: '200px',
+            maxHeight: undefined,
+            codeMirrorOptions: { viewportMargin: Infinity },
             toolbar: [
                 'bold','italic','heading','|',
                 'quote','unordered-list','ordered-list','|',

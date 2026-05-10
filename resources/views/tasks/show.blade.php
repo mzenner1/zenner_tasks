@@ -196,6 +196,21 @@
                 </button>
             </div>
 
+            {{-- Created-from-comment origin indicator --}}
+            @if($task->sourceComment)
+            @php $sc = $task->sourceComment; $originTask = $sc->task; @endphp
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700 mb-1.5">Origin</p>
+                <div class="flex items-start gap-1.5 text-xs text-emerald-800">
+                    <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <span>Created from a comment on
+                        <a href="{{ route('projects.tasks.show', [$originTask->project_id, $originTask]) }}#comment-{{ $sc->id }}"
+                           class="font-semibold hover:underline">{{ $originTask->task_number_label }} – {{ $originTask->title }}</a>
+                    </span>
+                </div>
+            </div>
+            @endif
+
             {{-- Status --}}
             <div class="bg-white rounded-xl border border-gray-200 p-4">
                 <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Status</label>
