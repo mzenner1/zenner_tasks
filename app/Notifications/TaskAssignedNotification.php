@@ -25,6 +25,7 @@ class TaskAssignedNotification extends Notification
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line('You have been assigned to the following task:')
             ->line('**' . $this->task->title . '**')
+            ->when($this->task->description, fn ($mail) => $mail->line($this->task->description))
             ->line('Project: ' . $this->task->project->name)
             ->line('Priority: ' . ucfirst($this->task->priority))
             ->when($this->task->due_date, fn ($mail) => $mail->line('Due: ' . $this->task->due_date->format('M j, Y')))
