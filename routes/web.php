@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\AttachmentController;
@@ -121,6 +122,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Archived projects
         Route::get('projects/archived',              [AdminProjectController::class, 'archived'])->name('projects.archived');
         Route::post('projects/{project}/unarchive',  [AdminProjectController::class, 'unarchive'])->name('projects.unarchive');
+
+        // Super admin: impersonate a user
+        Route::post('impersonate/{user}', [ImpersonationController::class, 'impersonate'])->name('impersonate');
     });
+
+    // Stop impersonating (accessible while logged in as any user)
+    Route::post('impersonate/stop', [ImpersonationController::class, 'stopImpersonating'])->name('impersonate.stop');
 
 });

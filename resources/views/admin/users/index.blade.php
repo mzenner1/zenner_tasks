@@ -78,6 +78,13 @@
                     <td class="px-4 py-3 text-right">
                         <a href="{{ route('admin.users.edit', $user) }}"
                            class="text-xs text-gray-400 hover:text-purple-600 mr-3">Edit</a>
+                        @if(auth()->user()->role === 'super_admin' && $user->id !== auth()->id() && $user->role !== 'super_admin')
+                        <form method="POST" action="{{ route('admin.impersonate', $user) }}" class="inline mr-3">
+                            @csrf
+                            <button type="submit"
+                                    class="text-xs text-blue-400 hover:text-blue-600">Login as</button>
+                        </form>
+                        @endif
                         @if($user->id !== auth()->id())
                         <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="inline">
                             @csrf @method('DELETE')

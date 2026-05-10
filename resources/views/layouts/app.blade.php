@@ -125,6 +125,18 @@
                     <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Admin: Users</a>
                     <a href="{{ route('admin.projects.archived') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Admin: Archived Projects</a>
                     @endif
+                    @if(session('impersonating_original_id'))
+                    @php $originalAdmin = \App\Models\User::find(session('impersonating_original_id')); @endphp
+                    @if($originalAdmin)
+                    <div class="border-t border-gray-700"></div>
+                    <form method="POST" action="{{ route('impersonate.stop') }}">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-yellow-400 hover:bg-gray-700">
+                            ← Return to {{ $originalAdmin->name }}
+                        </button>
+                    </form>
+                    @endif
+                    @endif
                     <div class="border-t border-gray-700"></div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -150,6 +162,22 @@
                 <span class="font-semibold text-sm tracking-tight">Zenner Tasks</span>
             </a>
         </header>
+
+        {{-- Impersonation banner --}}
+        @if(session('impersonating_original_id'))
+        @php $originalAdmin = \App\Models\User::find(session('impersonating_original_id')); @endphp
+        @if($originalAdmin)
+        <div class="flex items-center justify-between bg-yellow-400 text-yellow-900 px-5 py-2 text-sm font-medium flex-shrink-0">
+            <span>You are viewing as <strong>{{ auth()->user()->name }}</strong></span>
+            <form method="POST" action="{{ route('impersonate.stop') }}">
+                @csrf
+                <button type="submit" class="underline font-semibold hover:text-yellow-700 transition">
+                    Return to {{ $originalAdmin->name }}
+                </button>
+            </form>
+        </div>
+        @endif
+        @endif
 
         {{-- Flash messages --}}
         @if(session('success') || session('error'))
