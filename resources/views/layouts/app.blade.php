@@ -47,10 +47,10 @@
 
         {{-- Logo --}}
         <div class="flex flex-col px-5 py-5 border-b border-gray-700 gap-1">
-            <div class="flex items-center gap-2">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                 <img src="{{ asset('images/site-logo-2.png') }}" alt="Zenner Tasks" class="h-6 w-auto">
                 <span class="font-semibold text-white text-lg tracking-tight">Zenner Tasks</span>
-            </div>
+            </a>
             <span class="text-gray-400 tracking-wide" style="font-size:12px">Project Management, Simplified</span>
         </div>
 
@@ -145,8 +145,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-            <img src="{{ asset('images/site-logo-2.png') }}" alt="Zenner Tasks" class="h-5 w-auto">
-            <span class="font-semibold text-sm tracking-tight">Zenner Tasks</span>
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
+                <img src="{{ asset('images/site-logo-2.png') }}" alt="Zenner Tasks" class="h-5 w-auto">
+                <span class="font-semibold text-sm tracking-tight">Zenner Tasks</span>
+            </a>
         </header>
 
         {{-- Flash messages --}}
