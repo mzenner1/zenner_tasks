@@ -20,6 +20,7 @@ class User extends Authenticatable
         'password',
         'role',
         'avatar',
+        'google_id',
         'invited_by',
         'last_active_at',
         'preferences',
