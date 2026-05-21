@@ -21,13 +21,21 @@ use Illuminate\Support\Facades\Route;
 // PWA offline fallback
 Route::get('/offline', fn() => view('vendor.laravelpwa.offline'))->name('offline');
 
+// Guest home page — shown to unauthenticated visitors at "/"
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return view('home');
+})->name('home');
+
 // Auth (Breeze generated)
 require __DIR__.'/auth.php';
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard
-    Route::get('/', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     // Projects
     Route::resource('projects', ProjectController::class);
