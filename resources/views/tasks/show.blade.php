@@ -136,7 +136,8 @@
                                       data-easymde
                                       data-image-upload-url="{{ route('attachments.image-upload') }}"
                                       data-mention-url="{{ route('projects.members.search', $project) }}"
-                                      data-csrf="{{ csrf_token() }}">{{ old('body') }}</textarea>
+                                      data-csrf="{{ csrf_token() }}"
+                                      data-draft-key="comment_draft_task_{{ $task->id }}">{{ old('body') }}</textarea>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-500 mb-1">Attachments</label>

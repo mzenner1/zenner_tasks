@@ -192,6 +192,38 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mentionUrl) {
             bootMentionAutocomplete(cm, mentionUrl);
         }
+
+        // ── Comment draft persistence ─────────────────────────────────────
+        const draftKey = el.dataset.draftKey;
+        if (draftKey) {
+            // Restore saved draft only when there is no old() flash value
+            // from a failed form submit (the textarea would be non-empty then).
+            const saved = localStorage.getItem(draftKey);
+            if (saved && !mde.value().trim()) {
+                mde.value(saved);
+                scanAndMarkMentions(cm);
+                scanAndMarkImages(cm);
+            }
+
+            // Persist on every change (debounced 500 ms).
+            let draftTimer = null;
+            cm.on('change', () => {
+                clearTimeout(draftTimer);
+                draftTimer = setTimeout(() => {
+                    const val = mde.value();
+                    if (val.trim()) {
+                        localStorage.setItem(draftKey, val);
+                    } else {
+                        localStorage.removeItem(draftKey);
+                    }
+                }, 500);
+            });
+
+            // Clear draft when the comment form is submitted successfully.
+            el.closest('form').addEventListener('submit', () => {
+                localStorage.removeItem(draftKey);
+            });
+        }
     });
 });
 
