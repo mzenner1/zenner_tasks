@@ -25,8 +25,10 @@ class SendTaskStatusChangedNotification
 
         $event->task->load('watchers');
 
+        $actedBy = $event->actedBy ?? null;
+
         foreach ($event->task->watchers as $watcher) {
-            if ($watcher->id === $event->actedBy) {
+            if ($watcher->id === $actedBy) {
                 continue;
             }
             $watcher->notify(new TaskStatusChangedNotification($event->task, $fromStatus, $toStatus));

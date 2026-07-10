@@ -4,9 +4,12 @@ namespace App\Listeners;
 
 use App\Events\UserInvited;
 use App\Notifications\ProjectInvitationNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendProjectInvitationNotification
+class SendProjectInvitationNotification implements ShouldQueue
 {
+    public bool $deleteWhenMissingModels = true;
+
     public function handle(UserInvited $event): void
     {
         $event->invitedUser->notify(
