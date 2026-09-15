@@ -179,26 +179,6 @@
         @endif
         @endif
 
-        {{-- Flash messages --}}
-        @if(session('success') || session('error'))
-        <div class="px-6 pt-4">
-            @if(session('success'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                 class="flex items-center justify-between bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
-                <span>{{ session('success') }}</span>
-                <button @click="show = false" class="text-green-600 hover:text-green-800 ml-4">&#x2715;</button>
-            </div>
-            @endif
-            @if(session('error'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
-                 class="flex items-center justify-between bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
-                <span>{{ session('error') }}</span>
-                <button @click="show = false" class="text-red-600 hover:text-red-800 ml-4">&#x2715;</button>
-            </div>
-            @endif
-        </div>
-        @endif
-
         <main class="flex-1 overflow-y-auto p-6" x-data="{ atTop: true }" @scroll.passive="atTop = $el.scrollTop < 100" x-ref="mainContent">
             {{ $slot }}
 
@@ -222,6 +202,8 @@
         </main>
     </div>
 </div>
+
+<x-flash-toasts />
 @stack('scripts')
 </body>
 </html>

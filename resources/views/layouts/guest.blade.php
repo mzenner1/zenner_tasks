@@ -30,5 +30,7 @@
 
             <p class="mt-8 text-xs text-gray-400">&copy; {{ date('Y') }} Zenner Tasks. All rights reserved.</p>
         </div>
+
+        <x-flash-toasts />
     </body>
 </html>
