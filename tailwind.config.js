@@ -15,6 +15,22 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                // Logo color (#6F68FE) is 600.
+                brand: {
+                    50:  '#f3f2ff',
+                    100: '#e9e8ff',
+                    200: '#d5d3ff',
+                    300: '#b7b3ff',
+                    400: '#9892fe',
+                    500: '#817bfe',
+                    600: '#6f68fe',
+                    700: '#5a52e8',
+                    800: '#4841c0',
+                    900: '#3b3698',
+                    950: '#232057',
+                },
+            },
         },
     },
 

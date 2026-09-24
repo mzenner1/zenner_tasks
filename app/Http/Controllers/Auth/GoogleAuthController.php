@@ -35,22 +35,16 @@ class GoogleAuthController extends Controller
                     ->withErrors(['email' => 'This account has been deactivated.']);
             }
 
-            if ($user) {
-                // Link the Google account to the existing user.
-                $user->update([
-                    'google_id' => $googleUser->getId(),
-                    'avatar'    => $user->avatar ?? $googleUser->getAvatar(),
-                ]);
-            } else {
-                // Create a brand-new account.
-                $user = User::create([
-                    'name'      => $googleUser->getName(),
-                    'email'     => $googleUser->getEmail(),
-                    'google_id' => $googleUser->getId(),
-                    'avatar'    => $googleUser->getAvatar(),
-                    'password'  => null,
-                ]);
+            if (! $user) {
+                return redirect()->route('login')
+                    ->withErrors(['email' => 'No account exists for this email. Access to Zenner Tasks is by invitation only.']);
             }
+
+            // Link the Google account to the existing user.
+            $user->update([
+                'google_id' => $googleUser->getId(),
+                'avatar'    => $user->avatar ?? $googleUser->getAvatar(),
+            ]);
         }
 
         if ($user->trashed()) {

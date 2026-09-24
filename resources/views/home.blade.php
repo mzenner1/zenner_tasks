@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+{{-- Override the app-wide overflow lock in app.css so this page scrolls normally --}}
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" style="height: auto; overflow: auto;">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,12 +13,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @laravelPWA
 </head>
-<body class="font-sans antialiased bg-white text-gray-900">
+<body class="font-sans antialiased bg-white text-gray-900" style="height: auto; overflow: visible;">
 
 {{-- ═══════════════════════════════════════════
      NAV
 ═══════════════════════════════════════════ --}}
-<header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+<header class="bg-neutral-800 border-b border-neutral-700 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         {{-- Logo --}}
         <a href="/" class="flex items-center gap-2.5">
@@ -29,13 +30,13 @@
         <nav class="flex items-center gap-3">
             @if (Route::has('login'))
                 <a href="{{ route('login') }}"
-                   class="text-sm text-gray-300 hover:text-white transition px-4 py-1.5 rounded-md hover:bg-gray-700">
+                   class="text-sm text-gray-300 hover:text-white transition px-4 py-1.5 rounded-md hover:bg-neutral-700">
                     Sign In
                 </a>
             @endif
             @if (Route::has('register'))
                 <a href="{{ route('register') }}"
-                   class="text-sm font-semibold bg-purple-600 hover:bg-purple-500 transition text-white px-4 py-1.5 rounded-md">
+                   class="text-sm font-semibold bg-brand-600 hover:bg-brand-500 transition text-white px-4 py-1.5 rounded-md">
                     Get Started Free
                 </a>
             @endif
@@ -46,20 +47,20 @@
 {{-- ═══════════════════════════════════════════
      HERO + LOGIN
 ═══════════════════════════════════════════ --}}
-<section class="bg-gray-900 text-white">
+<section class="bg-neutral-800 text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-center">
 
             {{-- ── Left: headline ─────────────────────────── --}}
             <div>
-                <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-purple-400 bg-purple-900/40 border border-purple-700/50 px-3 py-1 rounded-full mb-6">
+                <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-brand-400 bg-brand-900/40 border border-brand-700/50 px-3 py-1 rounded-full mb-6">
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                     Built for Modern Teams
                 </span>
 
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
                     Project Management,
-                    <span class="text-purple-400">Simplified.</span>
+                    <span class="text-brand-400">Simplified.</span>
                 </h1>
 
                 <p class="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
@@ -75,8 +76,8 @@
                         ['icon' => 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9', 'text' => 'Real-time email notifications on every update'],
                     ] as $feature)
                     <li class="flex items-start gap-3 text-gray-300 text-sm">
-                        <span class="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-purple-900/60 border border-purple-700/50 flex items-center justify-center">
-                            <svg class="w-2.5 h-2.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <span class="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-brand-900/60 border border-brand-700/50 flex items-center justify-center">
+                            <svg class="w-2.5 h-2.5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="{{ $feature['icon'] }}"/>
                             </svg>
                         </span>
@@ -88,8 +89,8 @@
                 {{-- Social proof --}}
                 <div class="flex items-center gap-4 text-sm text-gray-500">
                     <div class="flex -space-x-2">
-                        @foreach (['bg-purple-500','bg-indigo-500','bg-pink-500','bg-amber-500'] as $color)
-                        <div class="w-8 h-8 rounded-full {{ $color }} border-2 border-gray-900 flex items-center justify-center">
+                        @foreach (['bg-brand-500','bg-indigo-500','bg-pink-500','bg-amber-500'] as $color)
+                        <div class="w-8 h-8 rounded-full {{ $color }} border-2 border-neutral-800 flex items-center justify-center">
                             <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
                         </div>
                         @endforeach
@@ -131,7 +132,7 @@
                                 autocomplete="username"
                                 placeholder="you@example.com"
                                 class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400
-                                       focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
+                                       focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
                                        @error('email') border-red-400 bg-red-50 @enderror"
                             >
                             @error('email')
@@ -144,7 +145,7 @@
                             <div class="flex items-center justify-between mb-1">
                                 <label for="home_password" class="block text-sm font-medium text-gray-700">Password</label>
                                 @if (Route::has('password.request'))
-                                    <a href="{{ route('password.request') }}" class="text-xs text-purple-600 hover:text-purple-800 hover:underline">
+                                    <a href="{{ route('password.request') }}" class="text-xs text-brand-600 hover:text-brand-800 hover:underline">
                                         Forgot password?
                                     </a>
                                 @endif
@@ -157,7 +158,7 @@
                                 autocomplete="current-password"
                                 placeholder="••••••••"
                                 class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400
-                                       focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
+                                       focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
                                        @error('password') border-red-400 bg-red-50 @enderror"
                             >
                             @error('password')
@@ -168,13 +169,13 @@
                         {{-- Remember me --}}
                         <div class="flex items-center mb-6">
                             <input id="home_remember" type="checkbox" name="remember"
-                                   class="rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500 w-4 h-4">
+                                   class="rounded border-gray-300 text-brand-600 shadow-sm focus:ring-brand-500 w-4 h-4">
                             <label for="home_remember" class="ms-2 text-sm text-gray-600">Remember me</label>
                         </div>
 
                         {{-- Submit --}}
                         <button type="submit"
-                                class="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 transition text-white font-semibold text-sm py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                class="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:bg-brand-800 transition text-white font-semibold text-sm py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">
                             Sign In
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -210,7 +211,7 @@
                     @if (Route::has('register'))
                     <p class="mt-6 text-center text-sm text-gray-500">
                         Don't have an account?
-                        <a href="{{ route('register') }}" class="font-semibold text-purple-600 hover:text-purple-800 hover:underline">
+                        <a href="{{ route('register') }}" class="font-semibold text-brand-600 hover:text-brand-800 hover:underline">
                             Create one free
                         </a>
                     </p>
@@ -292,16 +293,16 @@
 {{-- ═══════════════════════════════════════════
      CTA BANNER
 ═══════════════════════════════════════════ --}}
-<section class="bg-purple-600 py-16">
+<section class="bg-brand-600 py-16">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl font-extrabold text-white tracking-tight mb-4">Ready to get organised?</h2>
-        <p class="text-purple-100 text-lg mb-8">
-            Join your team on Zenner Tasks. It's free to get started.
+        <p class="text-brand-100 text-lg mb-8">
+            Access to Zenner Tasks is by invitation only. Ask your project admin for an invite.
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
             @if (Route::has('register'))
             <a href="{{ route('register') }}"
-               class="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-700 font-semibold text-sm rounded-lg hover:bg-purple-50 transition shadow-sm">
+               class="inline-flex items-center gap-2 px-6 py-3 bg-white text-brand-700 font-semibold text-sm rounded-lg hover:bg-brand-50 transition shadow-sm">
                 Create your free account
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -309,7 +310,7 @@
             </a>
             @endif
             <a href="{{ route('login') }}"
-               class="inline-flex items-center gap-2 px-6 py-3 bg-purple-700/60 hover:bg-purple-700 text-white font-medium text-sm rounded-lg transition border border-purple-500">
+               class="inline-flex items-center gap-2 px-6 py-3 bg-brand-700/60 hover:bg-brand-700 text-white font-medium text-sm rounded-lg transition border border-brand-500">
                 Already have an account? Sign in
             </a>
         </div>
@@ -319,7 +320,7 @@
 {{-- ═══════════════════════════════════════════
      FOOTER
 ═══════════════════════════════════════════ --}}
-<footer class="bg-gray-900 text-gray-400 border-t border-gray-800 py-10">
+<footer class="bg-neutral-800 text-gray-400 border-t border-neutral-700 py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2.5">
             <img src="{{ asset('images/site-logo-2.png') }}" alt="Zenner Tasks" class="h-6 w-auto opacity-70">
