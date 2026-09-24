@@ -34,7 +34,12 @@ class ProjectMemberController extends Controller
         if ($request->input('_mode') === 'existing') {
             $user = User::findOrFail($request->user_id);
         } else {
-            $user = User::where('email', $request->email)->first();
+            $user = User::withTrashed()->where('email', $request->email)->first();
+
+            if ($user?->trashed()) {
+                return redirect()->route('projects.members.index', $project)
+                    ->with('error', "{$user->email} belongs to a deactivated account.");
+            }
 
             if (!$user) {
                 $user = User::create([

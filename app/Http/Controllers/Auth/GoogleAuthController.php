@@ -24,11 +24,16 @@ class GoogleAuthController extends Controller
     {
         $googleUser = Socialite::driver('google')->user();
 
-        $user = User::where('google_id', $googleUser->getId())->first();
+        $user = User::withTrashed()->where('google_id', $googleUser->getId())->first();
 
         if (! $user) {
             // Check if an account already exists with this email (e.g. invited user).
-            $user = User::where('email', $googleUser->getEmail())->first();
+            $user = User::withTrashed()->where('email', $googleUser->getEmail())->first();
+
+            if ($user?->trashed()) {
+                return redirect()->route('login')
+                    ->withErrors(['email' => 'This account has been deactivated.']);
+            }
 
             if ($user) {
                 // Link the Google account to the existing user.
@@ -46,6 +51,11 @@ class GoogleAuthController extends Controller
                     'password'  => null,
                 ]);
             }
+        }
+
+        if ($user->trashed()) {
+            return redirect()->route('login')
+                ->withErrors(['email' => 'This account has been deactivated.']);
         }
 
         Auth::login($user, remember: true);
